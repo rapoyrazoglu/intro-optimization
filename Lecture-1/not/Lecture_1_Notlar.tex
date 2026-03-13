@@ -1,0 +1,1075 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page geometry
+\usepackage[margin=2.5cm, top=3cm, bottom=3cm]{geometry}
+
+% Math
+\usepackage{amsmath,amssymb,amsthm}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+
+% Lists
+\usepackage{enumitem}
+
+% Headers
+\usepackage{fancyhdr}
+
+% Colors and links
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+% Verbatim
+\usepackage{fancyvrb}
+
+% Turkish support
+\usepackage[turkish]{babel}
+
+% Header/footer setup
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{Optimizasyona Giri\c{s} -- Ders Notlar{\i}}}
+\fancyhead[R]{\textit{Lecture 1}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{ornek}{\"Ornek}[section]
+\newtheorem{tanim}{Tan{\i}m}[section]
+
+\theoremstyle{remark}
+\newtheorem*{yorum}{Yorum}
+
+% Title
+\title{
+    \vspace{-1cm}
+    {\LARGE \textbf{Optimizasyona Giri\c{s} -- Ders Notlar{\i}}} \\[0.5cm]
+    {\Large Lecture 1: Optimizasyonun Temelleri} \\[0.3cm]
+    {\large Giri\c{s}, Konveks Kavramlar, Kalk\"ul\"us ve Lineer Cebir Tekrar{\i}}
+}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\tableofcontents
+\newpage
+
+%% ============================================================
+%% SECTION 1
+%% ============================================================
+\section{Optimizasyon Nedir?}
+
+\subsection{En Basit Tan{\i}m{\i}yla}
+
+Optimizasyon = \textbf{en iyi de\u{g}eri bulmak}.
+
+Bir fonksiyonun \textbf{minimum} (en k\"u\c{c}\"uk) veya \textbf{maximum} (en b\"uy\"uk) de\u{g}erini veren $x$'i ar{\i}yoruz.
+
+\[
+\min_{x} f(x)
+\]
+
+\textbf{\"Ornek:} $f(x) = x^2 - 4x + 5$ fonksiyonunun minimumunu bul.
+
+Bildi\u{g}in t\"urevi al{\i}p s{\i}f{\i}ra e\c{s}itle:
+\begin{itemize}
+    \item $f'(x) = 2x - 4 = 0 \;\Rightarrow\; x = 2$
+    \item $f(2) = 4 - 8 + 5 = 1$
+\end{itemize}
+
+$x = 2$'de minimum de\u{g}er $1$'dir. \.{I}\c{s}te optimizasyon bu kadar basit ba\c{s}l{\i}yor!
+
+\subsection{Optimizasyon Probleminin Genel Formu}
+
+\[
+\min_{x} f(x) \quad \text{\"oyle ki (subject to)} \quad x \in \Omega
+\]
+
+\begin{itemize}
+    \item \textbf{$f(x)$:} Ama\c{c} fonksiyonu (objective function) -- minimize etmek istedi\u{g}imiz \c{s}ey
+    \item \textbf{$x$:} Karar de\u{g}i\c{s}keni (decision variable) -- de\u{g}i\c{s}tirebildi\u{g}imiz de\u{g}er
+    \item \textbf{$\Omega$:} Uygun b\"olge (feasible region) -- $x$'in alabilece\u{g}i de\u{g}erler k\"umesi
+\end{itemize}
+
+\subsection{S{\i}n{\i}fland{\i}rma}
+
+\subsubsection{Minimizasyon vs Maksimizasyon}
+\begin{itemize}
+    \item $\min f(x) = -\max(-f(x))$
+    \item Yani birini \c{c}\"ozebildin mi, di\u{g}erini de \c{c}\"ozersin. Hep \textbf{minimizasyon} \"uzerinden gideriz.
+\end{itemize}
+
+\subsubsection{S\"urekli (Continuous) vs Ayr{\i}k (Discrete)}
+\begin{itemize}
+    \item \textbf{S\"urekli:} $x$ herhangi bir reel say{\i} olabilir ($x = 3.14159\ldots$)
+    \item \textbf{Ayr{\i}k:} $x$ sadece tam say{\i} olabilir ($x = 1, 2, 3, \ldots$)
+    \item \"Ornek: ``Ka\c{c} kg \c{s}eker alay{\i}m?'' $\to$ s\"urekli, ``Ka\c{c} araba \"ureteyim?'' $\to$ ayr{\i}k
+\end{itemize}
+
+\subsubsection{K{\i}s{\i}tl{\i} (Constrained) vs K{\i}s{\i}ts{\i}z (Unconstrained)}
+\begin{itemize}
+    \item \textbf{K{\i}s{\i}ts{\i}z:} $x$'e hi\c{c}bir s{\i}n{\i}r yok, istedi\u{g}ini se\c{c}
+    \item \textbf{K{\i}s{\i}tl{\i}:} $x$ baz{\i} ko\c{s}ullar{\i} sa\u{g}lamal{\i} (\"orne\u{g}in $x \geq 0$, veya $x_1 + x_2 = 10$)
+\end{itemize}
+
+\subsubsection{Lineer vs Nonlineer}
+\begin{itemize}
+    \item \textbf{Lineer:} $f(x) = 3x_1 + 2x_2$ gibi (t\"um terimlerin derecesi 1)
+    \item \textbf{Nonlineer:} $f(x) = x_1^2 + \sin(x_2)$ gibi (kareli, trigonometrik vs.)
+\end{itemize}
+
+\subsubsection{Konveks (Convex) vs Non-Convex}
+\begin{itemize}
+    \item \textbf{Konveks:} Fonksiyonun tek bir ``\c{c}ukuru'' var $\to$ minimum bulduysan, o \textbf{global} minimumd\"ur
+    \item \textbf{Non-convex:} Birden fazla \c{c}ukur olabilir $\to$ buldu\u{g}un minimum sadece \textbf{lokal} olabilir
+\end{itemize}
+
+\subsubsection{Global vs Lokal \c{C}\"oz\"um}
+\begin{itemize}
+    \item \textbf{Global minimum:} T\"um $x$'ler i\c{c}inde en k\"u\c{c}\"uk $f(x)$ de\u{g}eri
+    \item \textbf{Lokal minimum:} Yak{\i}n{\i}ndaki $x$'ler i\c{c}inde en k\"u\c{c}\"uk $f(x)$ de\u{g}eri
+\end{itemize}
+
+\textbf{\"Ornek:} $f(x) = x^4 - 2x^2 + 1$
+\begin{itemize}
+    \item $x = -1$ ve $x = 1$'de lokal (ve global) minimum var
+    \item $x = 0$'da lokal maksimum var
+\end{itemize}
+
+\subsection{Optimization Tree (A\u{g}a\c{c} Yap{\i}s{\i})}
+
+\begin{verbatim}
+                    Optimization
+                   /            \
+            Continuous         Discrete
+            /        \              \
+    Unconstrained  Constrained   Integer Programming
+         |          /    |    \
+     (Line search, Linear  Network  Stochastic
+      Trust region) Prog.  Prog.    Prog.
+\end{verbatim}
+
+Bu derste \"o\u{g}renece\u{g}imiz y\"ontemler:
+\begin{enumerate}
+    \item \textbf{K{\i}s{\i}ts{\i}z optimizasyon:} Line search, Trust region, Conjugate gradient, Quasi-Newton
+    \item \textbf{Lineer programlama:} Simplex, Interior point
+    \item \textbf{K{\i}s{\i}tl{\i} optimizasyon:} Quadratic programming, Penalty methods, Active set
+\end{enumerate}
+
+\newpage
+
+%% ============================================================
+%% SECTION 2
+%% ============================================================
+\section{Konveks Kavramlar (Affine, Cone, Convex)}
+
+\subsection{Kombinasyonlar -- Neden \"Onemli?}
+
+Optimizasyonda ``\c{c}\"oz\"um uzay{\i}n{\i}n \c{s}ekli'' \c{c}ok \"onemli. E\u{g}er \c{c}\"oz\"um uzay{\i}n konveks ise, i\c{s}imiz \c{c}ok kolayla\c{s}{\i}yor \c{c}\"unk\"u lokal minimum = global minimum olur.
+
+\"Oncelikle \textbf{kombinasyon} kavram{\i}ndan ba\c{s}layal{\i}m.
+
+\subsection{Lineer Kombinasyon}
+
+Elimizde vekt\"orler var: $x_1, x_2, \ldots, x_p$ (bunlar $\mathbb{R}^n$'de noktalar)
+
+\[
+x = \lambda_1 x_1 + \lambda_2 x_2 + \cdots + \lambda_p x_p
+\]
+
+Katsay{\i}lar ($\lambda_i$) herhangi bir reel say{\i} olabilir: pozitif, negatif, s{\i}f{\i}r\ldots
+
+\textbf{\"Ornek (2D'de):} $x_1 = (1, 0)$, $x_2 = (0, 1)$
+\begin{itemize}
+    \item $3x_1 + 2x_2 = (3, 2)$ $\checkmark$ lineer kombinasyon
+    \item $-x_1 + 5x_2 = (-1, 5)$ $\checkmark$ lineer kombinasyon
+    \item Sonu\c{c}: T\"um $\mathbb{R}^2$ d\"uzlemini kapsars{\i}n
+\end{itemize}
+
+\subsection{Affine Kombinasyon}
+
+Lineer kombinasyonla ayn{\i}, AMA katsay{\i}lar{\i}n toplam{\i} 1 olmal{\i}:
+
+\[
+\sum_{i=1}^{p} \lambda_i = 1
+\]
+
+\textbf{\"Ornek:} $x_1 = (1, 0)$, $x_2 = (0, 1)$
+\begin{itemize}
+    \item $0.5 \cdot x_1 + 0.5 \cdot x_2 = (0.5, 0.5)$ $\checkmark$ ($0.5 + 0.5 = 1$)
+    \item $2 \cdot x_1 + (-1) \cdot x_2 = (2, -1)$ $\checkmark$ ($2 + (-1) = 1$)
+    \item $3 \cdot x_1 + 2 \cdot x_2 = (3, 2)$ $\times$ ($3 + 2 = 5 \neq 1$)
+\end{itemize}
+
+\textbf{Geometrik anlam{\i}:} \.{I}ki nokta aras{\i}ndaki \textbf{do\u{g}ru} (ve onun uzant{\i}s{\i}). Yani iki noktadan ge\c{c}en sonsuz do\u{g}ru.
+
+\subsection{Konik (Conical) Kombinasyon}
+
+Katsay{\i}lar \textbf{negatif olamaz:}
+
+\[
+\lambda_i \geq 0
+\]
+
+\textbf{\"Ornek:} $x_1 = (1, 0)$, $x_2 = (0, 1)$
+\begin{itemize}
+    \item $3 \cdot x_1 + 2 \cdot x_2 = (3, 2)$ $\checkmark$ (ikisi de $\geq 0$)
+    \item $-1 \cdot x_1 + 5 \cdot x_2 = (-1, 5)$ $\times$ ($-1 < 0$)
+\end{itemize}
+
+\textbf{Geometrik anlam{\i}:} Orijinden ba\c{s}layan bir \textbf{koni} (u\c{c}) \c{s}eklinde b\"olge.
+
+\subsection{Konveks (Convex) Kombinasyon}
+
+\textbf{Hem} katsay{\i}lar{\i}n toplam{\i} 1, \textbf{hem} hepsi $\geq 0$:
+
+\[
+\sum_{i=1}^{p} \lambda_i = 1 \quad \text{ve} \quad \lambda_i \geq 0
+\]
+
+\textbf{\"Ornek:} $x_1 = (1, 0)$, $x_2 = (0, 1)$
+\begin{itemize}
+    \item $0.3 \cdot x_1 + 0.7 \cdot x_2 = (0.3, 0.7)$ $\checkmark$
+    \item $0.5 \cdot x_1 + 0.5 \cdot x_2 = (0.5, 0.5)$ $\checkmark$ (tam orta nokta)
+    \item $2 \cdot x_1 + (-1) \cdot x_2$ $\times$ ($-1 < 0$)
+\end{itemize}
+
+\textbf{Geometrik anlam{\i}:} \.{I}ki nokta aras{\i}ndaki \textbf{do\u{g}ru par\c{c}as{\i}}. \"U\c{c} nokta i\c{c}in u\c{c}u birle\c{s}tiren \textbf{\"u\c{c}gen}.
+
+\subsection{\"Ozet Tablosu}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Kombinasyon} & \textbf{Ko\c{s}ul} & \textbf{Geometrik Anlam} \\
+\midrule
+Lineer   & yok                                     & T\"um uzay \\
+Affine   & $\sum \lambda_i = 1$                    & Noktalardan ge\c{c}en do\u{g}ru/d\"uzlem \\
+Konik    & $\lambda_i \geq 0$                      & Orijinden koni \\
+Konveks  & $\sum \lambda_i = 1$ ve $\lambda_i \geq 0$ & Noktalar{\i}n i\c{c}indeki b\"olge \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Konveks Fonksiyon}
+
+Bir fonksiyon $f$ \textbf{konveks} ise, herhangi iki noktas{\i} aras{\i}na \c{c}izdi\u{g}in do\u{g}ru, fonksiyonun \textbf{\"ust\"unde} kal{\i}r:
+
+\[
+f(\alpha x + (1-\alpha)y) \leq \alpha f(x) + (1-\alpha)f(y) \quad \forall \alpha \in [0,1]
+\]
+
+\textbf{Basit\c{c}e:} \c{C}ukur \c{s}eklinde (U harfi gibi). Herhangi iki noktay{\i} birle\c{s}tiren do\u{g}ru, e\u{g}rinin alt{\i}na d\"u\c{s}mez.
+
+\textbf{\"Ornekler:}
+\begin{itemize}
+    \item $f(x) = x^2$ $\to$ konveks $\checkmark$ (parabol yukar{\i} bak{\i}yor)
+    \item $f(x) = |x|$ $\to$ konveks $\checkmark$ (V \c{s}eklinde)
+    \item $f(x) = e^x$ $\to$ konveks $\checkmark$
+    \item $f(x) = -x^2$ $\to$ konveks de\u{g}il, \textbf{konkav} (tepe noktas{\i} var)
+\end{itemize}
+
+\textbf{Konkav fonksiyon:} $-f$ konveks ise $f$ konkavd{\i}r. (Tepe \c{s}eklinde, ters U)
+
+\textbf{Neden \"onemli?} Konveks fonksiyonun minimumunu bulursan, o \textbf{kesinlikle global minimumd\"ur}. Ba\c{s}ka bir yerde daha k\"u\c{c}\"uk de\u{g}er yoktur!
+
+\newpage
+
+%% ============================================================
+%% SECTION 3
+%% ============================================================
+\section{Kalk\"ul\"us Tekrar{\i} (Optimizasyon \.{I}\c{c}in Gereken)}
+
+\subsection{Yakla\c{s}{\i}m H{\i}z{\i} (Rate of Convergence)}
+
+Optimizasyon algoritmalar{\i} \textbf{iteratif} \c{c}al{\i}\c{s}{\i}r: bir ba\c{s}lang{\i}\c{c} noktas{\i} se\c{c}, ad{\i}m ad{\i}m \c{c}\"oz\"ume yakla\c{s}.
+Peki ne kadar h{\i}zl{\i} yakla\c{s}{\i}yorsun? Bunu \"ol\c{c}en kavram \textbf{yakla\c{s}{\i}m h{\i}z{\i}}.
+
+$\{x_k\}$ dizisi $x^*$'a yakla\c{s}{\i}yor olsun:
+
+\subsubsection{Q-Linear (Do\u{g}rusal Yakla\c{s}{\i}m)}
+
+\[
+\frac{\|x_{k+1} - x^*\|}{\|x_k - x^*\|} \leq r \quad \text{, } r \in (0,1)
+\]
+
+Her ad{\i}mda hatay{\i} \textbf{sabit bir oranla} azalt{\i}rs{\i}n.
+
+\textbf{\"Ornek:} $r = 0.5$ ise, her ad{\i}mda hata yar{\i}ya iner.
+\begin{itemize}
+    \item Hata: $1 \to 0.5 \to 0.25 \to 0.125 \to \ldots$
+\end{itemize}
+
+\subsubsection{Q-Superlinear (Do\u{g}rusal-\"Ust\"u)}
+
+\[
+\lim_{k \to \infty} \frac{\|x_{k+1} - x^*\|}{\|x_k - x^*\|} = 0
+\]
+
+Oran giderek k\"u\c{c}\"ul\"uyor, yani her ad{\i}m bir \"oncekinden \textbf{oransal olarak daha iyi}.
+
+\subsubsection{Q-Order $p$ ($p$. Dereceden)}
+
+\[
+\frac{\|x_{k+1} - x^*\|}{\|x_k - x^*\|^p} \leq M
+\]
+
+$p = 2$ ise \textbf{kuadratik yakla\c{s}{\i}m}: hata her ad{\i}mda \textbf{karesi} kadar azal{\i}r.
+\begin{itemize}
+    \item Hata: $0.1 \to 0.01 \to 0.0001 \to 0.00000001$
+    \item Newton metodu bunu ba\c{s}ar{\i}r!
+\end{itemize}
+
+\subsection{Lipschitz S\"ureklili\u{g}i}
+
+Bir fonksiyon $f$, $\mathcal{N}$ k\"umesinde \textbf{Lipschitz s\"urekli} ise:
+
+\[
+\|f(x) - f(y)\| \leq L \|x - y\| \quad \forall x, y \in \mathcal{N}
+\]
+
+\textbf{Ne demek?} Fonksiyonun de\u{g}i\c{s}im h{\i}z{\i} \textbf{s{\i}n{\i}rl{\i}}. Yani $f$ ``\c{c}ok h{\i}zl{\i}'' de\u{g}i\c{s}emez.
+$L$ sabiti ne kadar k\"u\c{c}\"ukse, fonksiyon o kadar ``yava\c{s}'' de\u{g}i\c{s}ir.
+
+\textbf{\"Ornek:} $f(x) = 2x$
+\begin{itemize}
+    \item $|f(x) - f(y)| = |2x - 2y| = 2|x - y|$
+    \item $L = 2$ ile Lipschitz s\"urekli $\checkmark$
+\end{itemize}
+
+\textbf{\"Ornek:} $f(x) = x^2$ (t\"um $\mathbb{R}$'de)
+\begin{itemize}
+    \item $|x^2 - y^2| = |x+y||x-y|$
+    \item $|x+y|$ s{\i}n{\i}rl{\i} de\u{g}ilse $L$ bulunamaz $\to$ T\"um $\mathbb{R}$'de Lipschitz de\u{g}il
+    \item Ama $[-5, 5]$ gibi s{\i}n{\i}rl{\i} bir aral{\i}kta Lipschitz ($L = 10$)
+\end{itemize}
+
+\textbf{\"Onemli \"ozellik:} $f$ ve $g$ Lipschitz ise $\to$ $f+g$ ve $f \cdot g$ de Lipschitz.
+
+\subsection{K{\i}smi T\"urev ve Gradient}
+
+\subsubsection{Tek De\u{g}i\c{s}kenli T\"urev}
+$f(x) = x^3 \;\Rightarrow\; f'(x) = 3x^2$
+
+\subsubsection{\c{C}ok De\u{g}i\c{s}kenli: K{\i}smi T\"urev (Partial Derivative)}
+
+$f(x_1, x_2)$ gibi birden fazla de\u{g}i\c{s}kenli fonksiyonlarda, \textbf{bir de\u{g}i\c{s}kene g\"ore} t\"urev al{\i}rken di\u{g}er de\u{g}i\c{s}kenleri sabit tutars{\i}n.
+
+\[
+\frac{\partial f}{\partial x_i} = \lim_{h \to 0} \frac{f(x + h e_i) - f(x)}{h}
+\]
+
+\textbf{\"Ornek:} $f(x_1, x_2) = x_1^2 + 3x_1 x_2 + x_2^2$
+
+\[
+\frac{\partial f}{\partial x_1} = 2x_1 + 3x_2 \quad \text{($x_2$'yi sabit tutuyoruz)}
+\]
+
+\[
+\frac{\partial f}{\partial x_2} = 3x_1 + 2x_2 \quad \text{($x_1$'i sabit tutuyoruz)}
+\]
+
+\subsubsection{Gradient (T\"urevlerin Vekt\"or\"u)}
+
+T\"um k{\i}smi t\"urevleri bir vekt\"or i\c{c}inde toplarsak \textbf{gradient} elde ederiz:
+
+\[
+\nabla f(x) = \begin{pmatrix} \partial f / \partial x_1 \\ \partial f / \partial x_2 \\ \vdots \\ \partial f / \partial x_n \end{pmatrix}
+\]
+
+\textbf{Yukar{\i}daki \"ornek i\c{c}in:}
+
+\[
+\nabla f(x) = \begin{pmatrix} 2x_1 + 3x_2 \\ 3x_1 + 2x_2 \end{pmatrix}
+\]
+
+\textbf{Gradient ne i\c{s}e yarar?}
+\begin{itemize}
+    \item Gradient, fonksiyonun \textbf{en h{\i}zl{\i} artt{\i}\u{g}{\i} y\"on\"u} g\"osterir
+    \item $-\nabla f$ (negatif gradient) ise \textbf{en h{\i}zl{\i} azald{\i}\u{g}{\i} y\"on} $\to$ minimuma gitmek i\c{c}in bu y\"onde y\"ur\"u!
+\end{itemize}
+
+\subsubsection{Y\"onl\"u T\"urev (Directional Derivative)}
+
+Gradient herhangi bir $p$ y\"on\"undeki de\u{g}i\c{s}im h{\i}z{\i}n{\i} verir:
+
+\[
+D(f(x), p) = \nabla f(x)^T p
+\]
+
+Burada $\|p\| = 1$ (birim vekt\"or).
+
+\subsection{Hessian Matrisi}
+
+Hessian = \textbf{ikinci t\"urevlerin matrisi}. Tek de\u{g}i\c{s}kende $f''(x)$ ne ise, \c{c}ok de\u{g}i\c{s}kende Hessian odur.
+
+\[
+\nabla^2 f(x) = \begin{pmatrix} \dfrac{\partial^2 f}{\partial x_1^2} & \dfrac{\partial^2 f}{\partial x_1 \partial x_2} & \cdots \\[8pt] \dfrac{\partial^2 f}{\partial x_2 \partial x_1} & \dfrac{\partial^2 f}{\partial x_2^2} & \cdots \\[8pt] \vdots & \vdots & \ddots \end{pmatrix}
+\]
+
+\textbf{\"Ornek:} $f(x_1, x_2) = x_1^2 + 3x_1 x_2 + x_2^2$
+
+\"Onceki k{\i}smi t\"urevlerden:
+\begin{itemize}
+    \item $\partial f / \partial x_1 = 2x_1 + 3x_2$
+    \item $\partial f / \partial x_2 = 3x_1 + 2x_2$
+\end{itemize}
+
+\c{S}imdi bunlar{\i}n da t\"urevini alal{\i}m:
+
+\[
+\nabla^2 f = \begin{pmatrix} 2 & 3 \\ 3 & 2 \end{pmatrix}
+\]
+
+\textbf{\"Onemli:} $f$ iki kez t\"urevlenebilir ise Hessian \textbf{simetriktir} (sa\u{g} \"ust = sol alt).
+
+\textbf{Hessian ne i\c{s}e yarar?}
+\begin{itemize}
+    \item Fonksiyonun \textbf{e\u{g}rili\u{g}ini} g\"osterir
+    \item Hessian pozitif definit ise $\to$ o nokta \textbf{minimum} (\c{c}ukur)
+    \item Hessian negatif definit ise $\to$ o nokta \textbf{maksimum} (tepe)
+    \item Kar{\i}\c{s}{\i}k ise $\to$ \textbf{eyer noktas{\i}} (ne min ne max)
+\end{itemize}
+
+\subsection{Taylor Teoremi}
+
+Tek de\u{g}i\c{s}kende biliyorsun:
+\[
+f(x+h) \approx f(x) + f'(x)h + \frac{1}{2}f''(x)h^2
+\]
+
+\c{C}ok de\u{g}i\c{s}kende \textbf{ayn{\i} mant{\i}k}, ama t\"urev yerine gradient, $f''$ yerine Hessian kullan{\i}l{\i}r:
+
+\subsubsection{Ortalama De\u{g}er Teoremi (Mean Value Theorem)}
+\[
+f(x+p) = f(x) + \nabla f(x + \alpha p)^T p \quad \text{, } \alpha \in (0,1)
+\]
+
+\subsubsection{Taylor A\c{c}{\i}l{\i}m{\i} (2. derece)}
+\[
+f(x+p) = f(x) + \nabla f(x)^T p + \frac{1}{2} p^T \nabla^2 f(x + \alpha p) \, p
+\]
+
+\textbf{Neden \"onemli?} Optimizasyon algoritmalar{\i} fonksiyonu \textbf{Taylor a\c{c}{\i}l{\i}m{\i} ile yakla\c{s}t{\i}r{\i}p} minimum bulur. \"Orne\u{g}in Newton metodu tam olarak bu 2. derece yakla\c{s}{\i}m{\i} kullan{\i}r.
+
+\subsection{Jacobian (Vekt\"or De\u{g}erli Fonksiyonlar \.{I}\c{c}in)}
+
+\c{S}imdi $f$ tek bir say{\i} d\"ondermiyorsa, mesela $r: \mathbb{R}^n \to \mathbb{R}^m$ ($n$ giri\c{s}, $m$ \c{c}{\i}k{\i}\c{s}):
+
+\[
+r(x) = \begin{pmatrix} f_1(x_1, \ldots, x_n) \\ f_2(x_1, \ldots, x_n) \\ \vdots \\ f_m(x_1, \ldots, x_n) \end{pmatrix}
+\]
+
+\textbf{Jacobian} = her bir $f_i$'nin gradientini sat{\i}rlara yaz:
+
+\[
+J(x) = \begin{pmatrix} \nabla f_1(x)^T \\ \nabla f_2(x)^T \\ \vdots \\ \nabla f_m(x)^T \end{pmatrix}
+\]
+
+\textbf{\"Ornek:} $r(x_1, x_2) = (x_1^2 + x_2,\; x_1 x_2)$
+
+\[
+J = \begin{pmatrix} 2x_1 & 1 \\ x_2 & x_1 \end{pmatrix}
+\]
+
+\textbf{Gradient vs Jacobian:}
+\begin{itemize}
+    \item Gradient: skaler fonksiyon ($\mathbb{R}^n \to \mathbb{R}$) i\c{c}in, sonu\c{c} $n \times 1$ vekt\"or
+    \item Jacobian: vekt\"or fonksiyon ($\mathbb{R}^n \to \mathbb{R}^m$) i\c{c}in, sonu\c{c} $m \times n$ matris
+    \item Asl{\i}nda gradient, Jacobian'{\i}n \"ozel hali ($m=1$ durumu)
+\end{itemize}
+
+\newpage
+
+%% ============================================================
+%% SECTION 4
+%% ============================================================
+\section{Lineer Cebir Tekrar{\i}}
+
+\subsection{Vekt\"or}
+
+Bir \textbf{kolon vekt\"or} $x \in \mathbb{R}^n$:
+
+\[
+x = \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{pmatrix}
+\]
+
+\textbf{Transpose (devrik):} Kolon vekt\"or\"u sat{\i}r vekt\"ore \c{c}evirir:
+
+\[
+x^T = (x_1, x_2, \ldots, x_n)
+\]
+
+\subsubsection{\.{I}\c{c} \c{C}arp{\i}m (Inner Product / Dot Product)}
+
+\[
+x^T y = \sum_{i=1}^{n} x_i y_i = x_1 y_1 + x_2 y_2 + \cdots + x_n y_n
+\]
+
+\textbf{\"Ornek:} $x = (1, 2, 3)^T$, $y = (4, 5, 6)^T$
+\begin{itemize}
+    \item $x^T y = 1 \cdot 4 + 2 \cdot 5 + 3 \cdot 6 = 4 + 10 + 18 = 32$
+\end{itemize}
+
+\subsubsection{Vekt\"or Normlar{\i} (B\"uy\"ukl\"uk \"Ol\c{c}\"us\"u)}
+
+Bir vekt\"or\"un ``uzunlu\u{g}unu'' \"ol\c{c}menin farkl{\i} yollar{\i}:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Norm} & \textbf{Form\"ul} & \textbf{Anlam} & \textbf{\"Ornek: $x = (3, -4)$} \\
+\midrule
+1-norm & $\|x\|_1 = \sum |x_i|$ & Mutlak de\u{g}erlerin toplam{\i} & $|3| + |-4| = 7$ \\
+2-norm & $\|x\|_2 = \sqrt{\sum x_i^2}$ & \"Oklid uzunlu\u{g}u & $\sqrt{9+16} = 5$ \\
+$\infty$-norm & $\|x\|_\infty = \max |x_i|$ & En b\"uy\"uk eleman & $\max(3, 4) = 4$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{2-norm en \c{c}ok kullan{\i}lan.} ``Vekt\"or\"un uzunlu\u{g}u'' denince genelde budur.
+
+\subsection{Matris}
+
+$m \times n$ boyutlu matris $A$:
+
+\[
+A = \begin{pmatrix} A_{11} & A_{12} & \cdots & A_{1n} \\ A_{21} & A_{22} & \cdots & A_{2n} \\ \vdots & & & \vdots \\ A_{m1} & A_{m2} & \cdots & A_{mn} \end{pmatrix}
+\]
+
+\subsubsection{Transpose (Devrik)}
+Sat{\i}rlar{\i} ve s\"utunlar{\i} yer de\u{g}i\c{s}tirir: $(A^T)_{ij} = A_{ji}$
+
+\subsubsection{Simetrik Matris}
+$A^T = A$ ise matris \textbf{simetriktir}. Yani $A_{ij} = A_{ji}$.
+
+\textbf{\"Ornek:}
+\[
+A = \begin{pmatrix} 1 & 3 \\ 3 & 2 \end{pmatrix} \quad \text{simetriktir (sa\u{g} \"ust = sol alt)}
+\]
+
+\subsubsection{Matris Normu}
+
+\[
+\|A\|_p = \max_{\|x\|_p = 1} \|Ax\|_p
+\]
+
+``$A$'n{\i}n bir birim vekt\"or\"u ne kadar b\"uy\"utebilece\u{g}i''
+
+\subsection{\"Ozde\u{g}er ve \"Ozvekt\"or (Eigenvalue \& Eigenvector)}
+
+Bu kavram optimizasyonda \textbf{\c{c}ok} \"onemli!
+
+\subsubsection{Tan{\i}m}
+$A$ bir $n \times n$ matris. E\u{g}er s{\i}f{\i}r olmayan bir $x$ vekt\"or\"u i\c{c}in:
+
+\[
+Ax = \lambda x
+\]
+
+ise, $\lambda$ \textbf{\"ozde\u{g}er}, $x$ \textbf{\"ozvekt\"or}.
+
+\textbf{Ne demek?} $A$ matrisi $x$ vekt\"or\"un\"u \c{c}arpt{\i}\u{g}{\i}nda, $x$'in \textbf{y\"on\"u de\u{g}i\c{s}miyor}, sadece $\lambda$ kat{\i} b\"uy\"uyor/k\"u\c{c}\"ul\"uyor.
+
+\textbf{\"Ornek:}
+\[
+A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}
+\]
+
+$x = (1, 1)^T$ deneyelim:
+\[
+Ax = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix} \begin{pmatrix} 1 \\ 1 \end{pmatrix} = \begin{pmatrix} 3 \\ 3 \end{pmatrix} = 3 \begin{pmatrix} 1 \\ 1 \end{pmatrix}
+\]
+
+$\lambda = 3$, $x = (1,1)^T$ bir \"ozde\u{g}er-\"ozvekt\"or \c{c}ifti!
+
+$x = (1, -1)^T$ deneyelim:
+\[
+Ax = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix} \begin{pmatrix} 1 \\ -1 \end{pmatrix} = \begin{pmatrix} 1 \\ -1 \end{pmatrix} = 1 \begin{pmatrix} 1 \\ -1 \end{pmatrix}
+\]
+
+$\lambda = 1$, $x = (1,-1)^T$ bir di\u{g}er \c{c}ift!
+
+\subsubsection{\"Ozde\u{g}erleri Bulma}
+$\det(A - \lambda I) = 0$ denklemini \c{c}\"oz.
+
+Yukar{\i}daki \"ornek i\c{c}in:
+\begin{itemize}
+    \item $\det\!\bigl(\begin{smallmatrix} 2-\lambda & 1 \\ 1 & 2-\lambda \end{smallmatrix}\bigr) = (2-\lambda)^2 - 1 = 0$
+    \item $\lambda^2 - 4\lambda + 3 = 0 \;\Rightarrow\; \lambda = 3,\; \lambda = 1$ $\checkmark$
+\end{itemize}
+
+\subsubsection{Simetrik Pozitif Definit (SPD) Matris}
+
+$A$ \textbf{simetrik pozitif definit} ise:
+\begin{enumerate}
+    \item $A^T = A$ (simetrik)
+    \item T\"um \"ozde\u{g}erleri \textbf{pozitif} ($\lambda > 0$)
+\end{enumerate}
+
+\textbf{E\c{s}de\u{g}er tan{\i}m:} Her s{\i}f{\i}r olmayan $x$ i\c{c}in: $x^T A x > 0$
+
+\textbf{Neden \"onemli?} $f(x)$'in Hessian'{\i} SPD ise $\to$ o nokta kesinlikle \textbf{minimum}!
+
+\subsubsection{Eigen-Decomposition}
+
+$A$'n{\i}n $n$ tane ba\u{g}{\i}ms{\i}z \"ozvekt\"or\"u varsa:
+\[
+A = X \Lambda X^{-1}
+\]
+\begin{itemize}
+    \item $X$: \"ozvekt\"orler (s\"utunlarda)
+    \item $\Lambda$: \"ozde\u{g}erler (k\"o\c{s}egen matris)
+\end{itemize}
+
+\subsection{Spectral Decomposition (Simetrik Matrisler \.{I}\c{c}in)}
+
+$A$ \textbf{simetrik} ise, \"ozvekt\"orler \textbf{ortogonal} se\c{c}ilir:
+
+\[
+A = Q \Lambda Q^T
+\]
+
+\begin{itemize}
+    \item $Q$: ortogonal matris ($Q^T Q = QQ^T = I$) $\to$ \"ozvekt\"orler
+    \item $\Lambda$: k\"o\c{s}egen matris $\to$ \"ozde\u{g}erler
+\end{itemize}
+
+\textbf{Ortogonal matris} ne demek? Sat{\i}rlar{\i} (ve s\"utunlar{\i}) birbirine dik ve birim uzunlukta.
+Ters almak i\c{c}in sadece transpose yeterli: $Q^{-1} = Q^T$ (hesap i\c{c}in \c{c}ok kolay!)
+
+\subsection{Tekil De\u{g}er Ayr{\i}\c{s}{\i}m{\i} (SVD)}
+
+\textbf{Herhangi} bir $m \times n$ matris $A$ i\c{c}in (simetrik olmak zorunda de\u{g}il!):
+
+\[
+A = U \Sigma V^T
+\]
+
+\begin{itemize}
+    \item $U$: $m \times m$ ortogonal matris (sol tekil vekt\"orler)
+    \item $\Sigma$: $m \times n$ k\"o\c{s}egen matris (tekil de\u{g}erler, $\sigma_1 \geq \sigma_2 \geq \ldots \geq 0$)
+    \item $V$: $n \times n$ ortogonal matris (sa\u{g} tekil vekt\"orler)
+\end{itemize}
+
+\textbf{Tekil de\u{g}erler =} $A^T A$'n{\i}n \"ozde\u{g}erlerinin karek\"okleri.
+
+\textbf{Neden \"onemli?} SVD hemen hemen her yerde kullan{\i}l{\i}r: en k\"u\c{c}\"uk kareler, boyut indirgeme, pseudo-inverse\ldots
+
+\subsection{LU Ayr{\i}\c{s}{\i}m{\i} (LU Decomposition)}
+
+$Ax = b$ lineer sistemi \c{c}\"ozmek i\c{c}in:
+
+\[
+PA = LU
+\]
+
+\begin{itemize}
+    \item $P$: perm\"utasyon matrisi (sat{\i}r de\u{g}i\c{s}tirme)
+    \item $L$: alt \"u\c{c}gensel matris (lower triangular)
+    \item $U$: \"ust \"u\c{c}gensel matris (upper triangular)
+\end{itemize}
+
+\textbf{\c{C}\"oz\"um ad{\i}m ad{\i}m:}
+\begin{enumerate}
+    \item $PA = LU$ ayr{\i}\c{s}{\i}m{\i}n{\i} yap
+    \item $Ly = Pb$ \c{c}\"oz (ileri yerine koyma -- kolay!)
+    \item $Ux = y$ \c{c}\"oz (geri yerine koyma -- kolay!)
+\end{enumerate}
+
+\textbf{Neden do\u{g}rudan $A^{-1}b$ hesaplam{\i}yoruz?} Ters matris hesaplamak \c{c}ok pahal{\i} ($O(n^3)$). LU ayr{\i}\c{s}{\i}m{\i} da $O(n^3)$ ama daha verimli ve say{\i}sal olarak daha kararl{\i}.
+
+\subsection{Cholesky Ayr{\i}\c{s}{\i}m{\i}}
+
+$A$ \textbf{simetrik pozitif definit (SPD)} ise, LU'nun \"ozel hali:
+
+\[
+P^T A P = L L^T
+\]
+
+LU'ya g\"ore \textbf{2 kat h{\i}zl{\i}} \c{c}\"unk\"u simetriyi kullan{\i}yor.
+
+$A$ SPD de\u{g}ilse \textbf{LBL ayr{\i}\c{s}{\i}m{\i}} kullan{\i}l{\i}r:
+
+\[
+P^T A P = L B L^T
+\]
+
+$B$: $1 \times 1$ veya $2 \times 2$ bloklu k\"o\c{s}egen matris.
+
+\subsection{Alt Uzaylar ve QR Ayr{\i}\c{s}{\i}m{\i}}
+
+\subsubsection{Null Uzay{\i} (Null Space)}
+\[
+\text{Null}(A) = \{w \mid Aw = 0,\; w \neq 0\}
+\]
+$A$'n{\i}n ``yok etti\u{g}i'' vekt\"orler k\"umesi.
+
+\subsubsection{G\"or\"unt\"u (Range)}
+\[
+\text{Range}(A) = \{w \mid w = Av,\; \forall v\}
+\]
+$A$'n{\i}n ``\"uretebilece\u{g}i'' vekt\"orler k\"umesi.
+
+\subsubsection{Temel Teorem}
+\[
+\text{Null}(A) \oplus \text{Range}(A^T) = \mathbb{R}^n
+\]
+Yani $\mathbb{R}^n$ uzay{\i}, $\text{Null}(A)$ ve $\text{Range}(A^T)$'nin do\u{g}rudan toplam{\i}na e\c{s}ittir.
+
+\subsubsection{QR Ayr{\i}\c{s}{\i}m{\i}}
+\[
+AP = QR
+\]
+\begin{itemize}
+    \item $Q$: ortogonal matris
+    \item $R$: \"ust \"u\c{c}gensel matris
+    \item $P$: perm\"utasyon matrisi
+\end{itemize}
+
+En k\"u\c{c}\"uk kareler problemlerinde \c{c}ok kullan{\i}l{\i}r.
+
+\subsection{Singularite ve Ko\c{s}ul Say{\i}s{\i}}
+
+\subsubsection{Singular (Tekil) Matris}
+$A$ matrisi \textbf{tekil} (tersi yok) ise:
+\begin{itemize}
+    \item En az bir \"ozde\u{g}eri 0
+    \item En az bir tekil de\u{g}eri 0
+    \item Null uzay{\i} bo\c{s} de\u{g}il
+    \item $\det(A) = 0$
+\end{itemize}
+
+\subsubsection{Ko\c{s}ul Say{\i}s{\i} (Condition Number)}
+
+\[
+\kappa(A) = \|A\| \cdot \|A^{-1}\|
+\]
+
+\begin{itemize}
+    \item $\kappa(A)$ b\"uy\"ukse $\to$ $A$ \textbf{k\"ot\"ukonumlanm{\i}\c{s}} (ill-conditioned)
+    \item K\"u\c{c}\"uk hatalar bile sonucu \c{c}ok de\u{g}i\c{s}tirebilir
+    \item $\kappa(A) = 1$ ideal (ortogonal matrisler)
+    \item $\kappa(A) = \infty$ ise $A$ tekil
+\end{itemize}
+
+\subsection{Sherman-Morrison-Woodbury Form\"ul\"u}
+
+$A$'n{\i}n tersini biliyorsan ve $A$'ya \textbf{k\"u\c{c}\"uk bir g\"uncelleme} yaparsan, yeni tersi \textbf{h{\i}zl{\i}ca} hesaplayabilirsin.
+
+\subsubsection{Rank-1 G\"uncelleme}
+$\hat{A} = A + uv^T$ ise:
+
+\[
+\hat{A}^{-1} = A^{-1} - \frac{A^{-1} u v^T A^{-1}}{1 + v^T A^{-1} u}
+\]
+
+\subsubsection{Genel Durum}
+$\hat{A} = A + UV^T$ ($U, V$: $n \times p$ matris) ise:
+
+\[
+\hat{A}^{-1} = A^{-1} - A^{-1} U (I + V^T A^{-1} U)^{-1} V^T A^{-1}
+\]
+
+\textbf{Neden \"onemli?} Quasi-Newton optimizasyon y\"ontemleri her ad{\i}mda Hessian'a rank-1 veya rank-2 g\"uncelleme yapar. Bu form\"ul sayesinde her seferinde tersi s{\i}f{\i}rdan hesaplamaya gerek kalmaz!
+
+\newpage
+
+%% ============================================================
+%% SECTION 5
+%% ============================================================
+\section{\c{C}\"oz\"ulm\"u\c{s} \"Ornekler}
+
+\subsection{\"Ornek 1: Gradient Hesaplama}
+
+\textbf{Soru:} $f(x_1, x_2) = 2x_1^2 + x_1 x_2 + x_2^2$ fonksiyonunun gradientini bul ve $(1, 2)$ noktas{\i}nda hesapla.
+
+\textbf{\c{C}\"oz\"um:}
+
+K{\i}smi t\"urevleri alal{\i}m:
+
+\[
+\frac{\partial f}{\partial x_1} = 4x_1 + x_2
+\]
+
+\[
+\frac{\partial f}{\partial x_2} = x_1 + 2x_2
+\]
+
+Gradient:
+
+\[
+\nabla f(x) = \begin{pmatrix} 4x_1 + x_2 \\ x_1 + 2x_2 \end{pmatrix}
+\]
+
+$(1, 2)$ noktas{\i}nda:
+
+\[
+\nabla f(1, 2) = \begin{pmatrix} 4(1) + 2 \\ 1 + 2(2) \end{pmatrix} = \begin{pmatrix} 6 \\ 5 \end{pmatrix}
+\]
+
+\begin{yorum}
+$(1, 2)$ noktas{\i}nda fonksiyon en h{\i}zl{\i} $(6, 5)$ y\"on\"unde artar. Minimum bulmak i\c{c}in $(-6, -5)$ y\"on\"unde y\"ur\"umeliyiz.
+\end{yorum}
+
+\subsection{\"Ornek 2: Hessian Hesaplama ve Pozitif Definitlik}
+
+\textbf{Soru:} $f(x_1, x_2) = 3x_1^2 - 2x_1 x_2 + x_2^2$ fonksiyonunun Hessian{\i}n{\i} bul. Pozitif definit mi?
+
+\textbf{\c{C}\"oz\"um:}
+
+Gradient:
+\[
+\nabla f = \begin{pmatrix} 6x_1 - 2x_2 \\ -2x_1 + 2x_2 \end{pmatrix}
+\]
+
+Hessian (gradientin t\"urevini al):
+\[
+\nabla^2 f = \begin{pmatrix} 6 & -2 \\ -2 & 2 \end{pmatrix}
+\]
+
+Pozitif definitlik kontrol\"u -- \"ozde\u{g}erlere bakal{\i}m:
+
+$\det(H - \lambda I) = 0$:
+\begin{align*}
+(6-\lambda)(2-\lambda) - (-2)(-2) &= 0 \\
+\lambda^2 - 8\lambda + 12 - 4 &= 0 \\
+\lambda^2 - 8\lambda + 8 &= 0 \\
+\lambda &= \frac{8 \pm \sqrt{64-32}}{2} = \frac{8 \pm \sqrt{32}}{2} \\
+\lambda_1 &\approx 6.83, \quad \lambda_2 \approx 1.17
+\end{align*}
+
+\textbf{\.{I}ki \"ozde\u{g}er de pozitif $\to$ Hessian pozitif definit $\to$ $f$ konveks bir fonksiyon!}
+
+\subsection{\"Ornek 3: Taylor A\c{c}{\i}l{\i}m{\i} ile Yakla\c{s}{\i}m}
+
+\textbf{Soru:} $f(x) = x_1^2 + x_2^2$ fonksiyonunu $x = (1, 1)$ noktas{\i} etraf{\i}nda 2. derece Taylor ile yakla\c{s}.
+
+\textbf{\c{C}\"oz\"um:}
+
+\[
+f(x+p) \approx f(x) + \nabla f(x)^T p + \frac{1}{2} p^T \nabla^2 f(x)\, p
+\]
+
+$f(1, 1) = 1 + 1 = 2$
+
+\[
+\nabla f(1, 1) = \begin{pmatrix} 2 \\ 2 \end{pmatrix}
+\]
+
+\[
+\nabla^2 f = \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix}
+\]
+
+$p = (0.1, 0.1)$ ad{\i}m{\i} atarsak:
+
+\begin{align*}
+f(1.1, 1.1) &\approx 2 + (2, 2) \begin{pmatrix} 0.1 \\ 0.1 \end{pmatrix} + \frac{1}{2} (0.1, 0.1) \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix} \begin{pmatrix} 0.1 \\ 0.1 \end{pmatrix} \\
+&= 2 + 0.4 + \frac{1}{2}(0.04) = 2 + 0.4 + 0.02 = 2.42
+\end{align*}
+
+Ger\c{c}ek de\u{g}er: $f(1.1, 1.1) = 1.21 + 1.21 = 2.42$ $\checkmark$ (Bu fonksiyon kuadratik oldu\u{g}u i\c{c}in Taylor tam sonu\c{c} verir)
+
+\subsection{\"Ornek 4: Konvekslik Kontrol\"u}
+
+\textbf{Soru:} $f(x) = e^x$ fonksiyonunun konveks oldu\u{g}unu g\"oster.
+
+\textbf{\c{C}\"oz\"um:} Tan{\i}mdan: $f(\alpha x + (1-\alpha)y) \leq \alpha f(x) + (1-\alpha)f(y)$ mi?
+
+\[
+e^{\alpha x + (1-\alpha)y} \leq \alpha e^x + (1-\alpha) e^y
+\]
+
+\.{I}kinci t\"urev testi: $f''(x) = e^x > 0$, $\forall x$ $\checkmark$
+
+$f''(x) > 0$ her yerde $\to$ $f$ kesinlikle konveks.
+
+\textbf{Kural:} Tek de\u{g}i\c{s}kenli fonksiyon i\c{c}in $f''(x) \geq 0$ ise konveks. \c{C}ok de\u{g}i\c{s}kenli i\c{c}in Hessian pozitif semi-definit ise konveks.
+
+\subsection{\"Ornek 5: \"Ozde\u{g}er Bulma}
+
+\textbf{Soru:} $A = \begin{pmatrix} 4 & 2 \\ 2 & 1 \end{pmatrix}$ matrisinin \"ozde\u{g}erlerini ve \"ozvekt\"orlerini bul.
+
+\textbf{\c{C}\"oz\"um:}
+
+$\det(A - \lambda I) = 0$:
+
+\begin{align*}
+(4-\lambda)(1-\lambda) - 4 &= 0 \\
+4 - 5\lambda + \lambda^2 - 4 &= 0 \\
+\lambda^2 - 5\lambda &= 0 \\
+\lambda(\lambda - 5) &= 0
+\end{align*}
+
+$\lambda_1 = 0$, $\lambda_2 = 5$
+
+$\lambda_1 = 0$ i\c{c}in \"ozvekt\"or: $(A - 0I)x = 0$:
+
+\[
+\begin{pmatrix} 4 & 2 \\ 2 & 1 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = 0
+\]
+
+$4x_1 + 2x_2 = 0 \;\Rightarrow\; x_2 = -2x_1 \;\Rightarrow\;$ $v_1 = (1, -2)^T$
+
+$\lambda_2 = 5$ i\c{c}in: $(A - 5I)x = 0$:
+
+\[
+\begin{pmatrix} -1 & 2 \\ 2 & -4 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = 0
+\]
+
+$-x_1 + 2x_2 = 0 \;\Rightarrow\; x_1 = 2x_2 \;\Rightarrow\;$ $v_2 = (2, 1)^T$
+
+\textbf{Not:} $\lambda_1 = 0$ oldu\u{g}u i\c{c}in $A$ tekil (singular). $\det(A) = 4 \cdot 1 - 2 \cdot 2 = 0$ $\checkmark$
+
+\subsection{\"Ornek 6: LU Ayr{\i}\c{s}{\i}m{\i}}
+
+\textbf{Soru:} $A = \begin{pmatrix} 2 & 1 \\ 4 & 3 \end{pmatrix}$ i\c{c}in LU ayr{\i}\c{s}{\i}m{\i}n{\i} bul ve $Ax = b$'yi \c{c}\"oz ($b = (3, 7)^T$).
+
+\textbf{\c{C}\"oz\"um:}
+
+\textbf{Ad{\i}m 1: LU Ayr{\i}\c{s}{\i}m{\i}} (pivotlama gerekmiyorsa $P = I$)
+
+Gauss eliminasyonu yapal{\i}m:
+\begin{itemize}
+    \item Sat{\i}r 2'den $(4/2 = 2) \times$ Sat{\i}r 1'i \c{c}{\i}kar
+\end{itemize}
+
+\[
+L = \begin{pmatrix} 1 & 0 \\ 2 & 1 \end{pmatrix}, \quad U = \begin{pmatrix} 2 & 1 \\ 0 & 1 \end{pmatrix}
+\]
+
+Kontrol: $LU = \begin{pmatrix} 2 & 1 \\ 4 & 3 \end{pmatrix} = A$ $\checkmark$
+
+\textbf{Ad{\i}m 2: $Ly = b$ \c{c}\"oz} (ileri yerine koyma)
+
+\[
+\begin{pmatrix} 1 & 0 \\ 2 & 1 \end{pmatrix} \begin{pmatrix} y_1 \\ y_2 \end{pmatrix} = \begin{pmatrix} 3 \\ 7 \end{pmatrix}
+\]
+
+\begin{itemize}
+    \item $y_1 = 3$
+    \item $2(3) + y_2 = 7 \;\Rightarrow\; y_2 = 1$
+\end{itemize}
+
+\textbf{Ad{\i}m 3: $Ux = y$ \c{c}\"oz} (geri yerine koyma)
+
+\[
+\begin{pmatrix} 2 & 1 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} 3 \\ 1 \end{pmatrix}
+\]
+
+\begin{itemize}
+    \item $x_2 = 1$
+    \item $2x_1 + 1 = 3 \;\Rightarrow\; x_1 = 1$
+\end{itemize}
+
+\textbf{\c{C}\"oz\"um: $x = (1, 1)^T$}
+
+\subsection{\"Ornek 7: Jacobian Hesaplama}
+
+\textbf{Soru:} $r(x_1, x_2) = (x_1^2 + x_2^2,\; x_1 x_2,\; e^{x_1})$ fonksiyonunun Jacobian{\i}n{\i} bul.
+
+\textbf{\c{C}\"oz\"um:}
+
+$r: \mathbb{R}^2 \to \mathbb{R}^3$ (2 giri\c{s}, 3 \c{c}{\i}k{\i}\c{s}), yani Jacobian $3 \times 2$ matris.
+
+\[
+J(x) = \begin{pmatrix} \dfrac{\partial f_1}{\partial x_1} & \dfrac{\partial f_1}{\partial x_2} \\[8pt] \dfrac{\partial f_2}{\partial x_1} & \dfrac{\partial f_2}{\partial x_2} \\[8pt] \dfrac{\partial f_3}{\partial x_1} & \dfrac{\partial f_3}{\partial x_2} \end{pmatrix} = \begin{pmatrix} 2x_1 & 2x_2 \\ x_2 & x_1 \\ e^{x_1} & 0 \end{pmatrix}
+\]
+
+$(1, 1)$ noktas{\i}nda:
+\[
+J(1, 1) = \begin{pmatrix} 2 & 2 \\ 1 & 1 \\ e & 0 \end{pmatrix}
+\]
+
+\subsection{\"Ornek 8: Ko\c{s}ul Say{\i}s{\i}}
+
+\textbf{Soru:} $A = \begin{pmatrix} 1 & 0 \\ 0 & 0.001 \end{pmatrix}$ matrisinin ko\c{s}ul say{\i}s{\i}n{\i} bul (2-norm ile).
+
+\textbf{\c{C}\"oz\"um:}
+
+$A$ k\"o\c{s}egen matris, \"ozde\u{g}erleri: $\lambda_1 = 1$, $\lambda_2 = 0.001$
+
+2-norm i\c{c}in:
+\begin{itemize}
+    \item $\|A\|_2 = \max$ \"ozde\u{g}er $= 1$
+    \item $\|A^{-1}\|_2 = \max(1/\lambda_i) = 1/0.001 = 1000$
+\end{itemize}
+
+\[
+\kappa(A) = 1 \times 1000 = 1000
+\]
+
+\begin{yorum}
+$\kappa(A) = 1000$ olduk\c{c}a b\"uy\"uk $\to$ bu matris \textbf{ill-conditioned}. $Ax = b$ \c{c}\"ozerken k\"u\c{c}\"uk hatalar 1000 kat b\"uy\"uyebilir.
+\end{yorum}
+
+\subsection{\"Ornek 9: Konveks Kombinasyon}
+
+\textbf{Soru:} $A = (1, 3)$ ve $B = (5, 1)$ noktalar{\i}n{\i}n konveks kombinasyonlar{\i}n{\i} yaz. $(0.5, 0.5)$ ve $(0.3, 0.7)$ i\c{c}in hesapla.
+
+\textbf{\c{C}\"oz\"um:}
+
+Konveks kombinasyon: $P = \lambda A + (1-\lambda)B$, $\lambda \in [0,1]$
+
+$\lambda = 0.5$:
+\begin{itemize}
+    \item $P = 0.5(1,3) + 0.5(5,1) = (0.5+2.5,\; 1.5+0.5) = \mathbf{(3, 2)}$ (orta nokta)
+\end{itemize}
+
+$\lambda = 0.3$:
+\begin{itemize}
+    \item $P = 0.3(1,3) + 0.7(5,1) = (0.3+3.5,\; 0.9+0.7) = \mathbf{(3.8, 1.6)}$ ($B$'ye daha yak{\i}n)
+\end{itemize}
+
+\textbf{Geometrik anlam:} $\lambda \in [0,1]$ de\u{g}i\c{s}tik\c{c}e, $A$ ile $B$ aras{\i}ndaki do\u{g}ru par\c{c}as{\i} \"uzerinde t\"um noktalar{\i} elde ederiz.
+
+\subsection{\"Ornek 10: Minimumu Bul (Gradient = 0)}
+
+\textbf{Soru:} $f(x_1, x_2) = x_1^2 + x_2^2 - 2x_1 - 4x_2 + 5$ fonksiyonunun minimumunu bul.
+
+\textbf{\c{C}\"oz\"um:}
+
+\textbf{Ad{\i}m 1: Gradient $= 0$ yap}
+
+\[
+\nabla f = \begin{pmatrix} 2x_1 - 2 \\ 2x_2 - 4 \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+\begin{itemize}
+    \item $2x_1 - 2 = 0 \;\Rightarrow\; x_1 = 1$
+    \item $2x_2 - 4 = 0 \;\Rightarrow\; x_2 = 2$
+\end{itemize}
+
+Kritik nokta: $(1, 2)$
+
+\textbf{Ad{\i}m 2: Hessian ile kontrol}
+
+\[
+\nabla^2 f = \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix}
+\]
+
+\"Ozde\u{g}erleri: $\lambda_1 = 2$, $\lambda_2 = 2$ (ikisi de pozitif)
+
+$\Rightarrow$ Hessian \textbf{pozitif definit} $\to$ bu nokta kesinlikle \textbf{minimum}!
+
+\[
+f(1, 2) = 1 + 4 - 2 - 8 + 5 = 0
+\]
+
+Minimum de\u{g}er $\mathbf{0}$, $(1, 2)$ noktas{\i}nda.
+
+\end{document}

@@ -1,0 +1,15 @@
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Extracted images (can be regenerated)
+Lecture-*/ders/images/

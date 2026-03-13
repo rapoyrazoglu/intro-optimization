@@ -1,0 +1,1606 @@
+\documentclass[12pt,a4paper]{article}
+
+% Encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page geometry
+\usepackage[margin=2.5cm, top=3cm, bottom=3cm]{geometry}
+
+% Math
+\usepackage{amsmath,amssymb,amsthm}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+
+% Lists
+\usepackage{enumitem}
+
+% Headers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Kisitsiz Optimizasyonun Temelleri}
+\fancyhead[R]{\small Lecture 2}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{colorlinks=false, pdfborder={0 0 0}}
+
+% Colors
+\usepackage{xcolor}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{teorem}{Teorem}[section]
+\newtheorem{tanim}[teorem]{Tanim}
+\newtheorem{sonuc}[teorem]{Sonuc}
+
+\theoremstyle{remark}
+\newtheorem*{not_}{Not}
+\newtheorem*{ornek_}{Ornek}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}[\vspace{0.3em}\hrule\vspace{0.5em}]
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Custom box for important formulas
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+\newtcolorbox{onemli}{
+  colback=gray!5,
+  colframe=black,
+  fonttitle=\bfseries,
+  breakable,
+  boxrule=0.8pt,
+  arc=2mm
+}
+
+\newtcolorbox{dikkat}{
+  colback=gray!10,
+  colframe=black,
+  fonttitle=\bfseries,
+  title=Dikkat,
+  breakable,
+  boxrule=0.8pt,
+  arc=2mm
+}
+
+% Verbatim
+\usepackage{fancyvrb}
+
+\begin{document}
+
+% ============================================================
+% TITLE PAGE
+% ============================================================
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+
+{\Huge\bfseries Kisitsiz Optimizasyonun Temelleri\par}
+\vspace{0.8cm}
+{\LARGE Ders Notlari\par}
+\vspace{1.5cm}
+{\Large\itshape Lecture 2\par}
+\vspace{3cm}
+
+\hrule
+\vspace{0.5cm}
+{\large Optimizasyona Giris Dersi\par}
+\vspace{0.5cm}
+\hrule
+
+\vfill
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+% SECTION 1: GIRIS VE GENEL BAKIS
+% ============================================================
+\section{Kisitsiz Optimizasyona Giris}
+
+\subsection{Bu Ders Neyi Kapsiyor?}
+
+Lecture 1'de optimizasyonun genel cercevesini gorduk: minimizasyon, maksimizasyon, kisitli, kisitsiz, lineer, nonlineer\ldots
+
+Bu derste \textbf{kisitsiz optimizasyon} (unconstrained optimization) konusuna daliyoruz. Yani:
+
+\[
+\min_{x \in \mathbb{R}^n} f(x)
+\]
+
+Burada $x$ uzerinde \textbf{hicbir kisit yok} --- istedigimiz degeri secebiliriz. Tek amacimiz $f(x)$'i mumkun oldugunca kucuk yapan $x$'i bulmak.
+
+\subsection{Neden Kisitsiz ile Basliyoruz?}
+
+\begin{enumerate}[leftmargin=*, itemsep=0.3em]
+\item \textbf{Daha basit:} Kisit yoksa sadece fonksiyonun kendisine odaklanabiliriz
+\item \textbf{Temel olusturuyor:} Kisitli problemler de genellikle kisitsiz alt-problemlere donusturuluyor
+\item \textbf{Pratik:} Makine ogrenmesi, derin ogrenme gibi alanlarda cogu problem kisitsiz formda
+\end{enumerate}
+
+\subsection{Cozum Nedir? --- Global ve Lokal Minimum}
+
+\subsubsection{Global Minimizer (Global Minimum Noktasi)}
+
+$x^*$ noktasi \textbf{global minimizer} ise:
+
+\[
+f(x^*) \leq f(x) \quad \text{tum } x \in \mathbb{R}^n \text{ icin}
+\]
+
+Yani butun evrende bundan daha iyi bir deger yok.
+
+\subsubsection{Lokal Minimizer (Yerel Minimum Noktasi)}
+
+$x^*$ noktasi \textbf{lokal minimizer} ise, \textbf{yakininda} daha iyi bir deger yok:
+
+\[
+f(x^*) \leq f(x) \quad \text{tum } x \in N \text{ icin ($N$ bir komsuluk)}
+\]
+
+Komsuluk ne demek? $x^*$'in etrafindaki kucuk bir top gibi dusun. O topun icindeki tum noktalarda $f$ degeri, $f(x^*)$'dan buyuk veya esit.
+
+\subsubsection{Sezgisel Anlama}
+
+Bir dagi dusun:
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Global minimum:} Tum vadilerin en derini
+\item \textbf{Lokal minimum:} Bulundugun vadinin en derin noktasi (ama baska daha derin vadiler olabilir)
+\end{itemize}
+
+Gercek hayat problemi: Dagda gozlerin kapali, sadece ayaginin altindaki egimi hissedebiliyorsun. Lokal minimumu bulmak kolay (egim sifir olana kadar asagi yuru), ama global minimumu bulmak zor!
+
+\subsection{Konveks Fonksiyonlarin Ozel Durumu}
+
+Konveks fonksiyonlarda isler cok basitlesiyor:
+
+\begin{teorem}
+$f$ konveks ise, her lokal minimum ayni zamanda \textbf{global minimumdur}.
+\end{teorem}
+
+\begin{teorem}
+$f$ konveks ve turevlenebilir ise, her \textbf{duragan nokta} ($\nabla f(x^*) = 0$) global minimumdur.
+\end{teorem}
+
+Bu neden onemli? Cunku konveks problemlerde ``yanlis vadiye dusme'' riski yok. Herhangi bir minimumu bulduysaniz, en iyisini buldunuz demektir.
+
+\textbf{Ornek:} $f(x) = x^2$ konveks $\rightarrow$ $x = 0$'daki minimum kesinlikle global.
+
+\textbf{Karsi ornek:} $f(x) = x^4 - 2x^2$ konveks degil $\rightarrow$ birden fazla lokal minimum var.
+
+\subsection{Duragan Nokta (Stationary Point)}
+
+Bir $x^*$ noktasi \textbf{duragan nokta} ise:
+
+\[
+\nabla f(x^*) = 0
+\]
+
+Yani tum kismi turevler sifir. Bu noktada fonksiyon ``duz'' --- ne artiyor ne azaliyor.
+
+\begin{dikkat}
+Her duragan nokta minimum degildir! Uc olasililik var:
+\begin{enumerate}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Lokal minimum} (cukur)
+\item \textbf{Lokal maksimum} (tepe)
+\item \textbf{Eyer noktasi (saddle point)} --- bir yonde minimum, baska yonde maksimum
+\end{enumerate}
+Hangisi oldugunu anlamak icin 2.\ turev bilgisine (Hessian) ihtiyacimiz var.
+\end{dikkat}
+
+\subsection{Optimizasyon Algoritmalari Ne Yapar?}
+
+Hemen hemen tum algoritmalar su sekilde calisir:
+
+\begin{enumerate}[leftmargin=*, itemsep=0.2em]
+\item Bir baslangic noktasi $x_0$ sec
+\item Su adimi tekrarla:
+  \begin{itemize}[leftmargin=*, itemsep=0.1em]
+  \item Mevcut $x_k$ noktasinda bilgi topla (gradient, Hessian vs.)
+  \item Bir sonraki $x_{k+1}$ noktasini hesapla
+  \item Yeterince iyi bir cozum bulduysan dur
+  \end{itemize}
+\end{enumerate}
+
+Bu bir \textbf{iteratif} surec. Her adimda biraz daha iyiye gidiyoruz.
+
+Durdurma kriteri genellikle: $\|\nabla f(x_k)\| < \varepsilon$ (gradient yeterince kucuk, yani neredeyse duragan noktadayiz)
+
+\subsection{Iki Ana Strateji}
+
+Optimizasyon algoritmalari iki buyuk aileye ayriliyor:
+
+\subsubsection{Line Search (Dogru Arama)}
+
+Fikir: ``Hangi yone gideyim, ve ne kadar gideyim?''
+
+\[
+x_{k+1} = x_k + \alpha_k p_k
+\]
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item $\mathbf{p_k}$: Arama yonu (descent direction) --- ``hangi yone?''
+\item $\boldsymbol{\alpha_k}$: Adim uzunlugu (step length) --- ``ne kadar?''
+\end{itemize}
+
+Oncelikle yonu belirlersin, sonra o yonde ne kadar yurumeyi bir alt-problem olarak cozersin.
+
+\subsubsection{Trust Region (Guven Bolgesi)}
+
+Fikir: ``Etrafimda bir bolge tanimlayayim, o bolge icinde modeli minimumla.''
+
+\[
+\min_p m_k(x_k + p) \quad \text{oyle ki } \|p\| \leq \Delta_k
+\]
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item $\mathbf{m_k}$: Fonksiyonun yerel modeli (yaklasimi)
+\item $\boldsymbol{\Delta_k}$: Guven bolgesi yaricapi --- ``ne kadar uzaga guveniyorum?''
+\end{itemize}
+
+Oncelikle ne kadar uzaga guvendigini belirlersin, sonra o bolge icinde en iyi noktayi bulmaya calisirsin.
+
+\subsubsection{Farklari}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Ozellik} & \textbf{Line Search} & \textbf{Trust Region} \\
+\midrule
+Once ne belirlenir? & Yon ($p_k$) & Yaricap ($\Delta_k$) \\
+Sonra ne belirlenir? & Adim boyu ($\alpha_k$) & Yon + mesafe ($p$) \\
+Esneklik & Tek bir dogrultuda arar & Butun bolgeyi tarayabilir \\
+Isleyis & Yon sec $\rightarrow$ o yonde yuru & Bolge tanimla $\rightarrow$ icinde minimumla \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Bu Derste Ogreneceklerimiz}
+
+\begin{enumerate}[leftmargin=*, itemsep=0.3em]
+\item \textbf{Optimallik kosullari:} Bir noktanin minimum oldugunu nasil anlariz?
+\item \textbf{Arama yonleri:} Steepest descent, Newton yontemi, Conjugate gradient
+\item \textbf{Adim uzunlugu hesaplama:} Exact ve inexact line search
+\item \textbf{Trust region yontemleri:} Model fonksiyonu ve guven bolgesi
+\item \textbf{Quasi-Newton yontemleri:} BFGS, SR1
+\end{enumerate}
+
+Tum bunlarin temeli: \textbf{Taylor acilimi} ve \textbf{lineer cebir} (gradient, Hessian, ozdegerler).
+
+
+% ============================================================
+% SECTION 2: OPTIMALLIK KOSULLARI
+% ============================================================
+\newpage
+\section{Optimallik Kosullari}
+
+\subsection{Buyuk Soru}
+
+Elimde bir $x^*$ noktasi var. Bu noktanin \textbf{minimum} oldugunu nasil anlarim?
+
+Cevap: \textbf{turev bilgisi}. Tek degiskende $f'(x) = 0$ ve $f''(x) > 0$ diye bakardik. Cok degiskende benzer seyler yapacagiz, ama matris versiyonlariyla.
+
+\subsection{Taylor Teoremi --- Her Seyin Temeli}
+
+Taylor teoremi, bir fonksiyonu \textbf{polinom} ile yaklastirmamizi saglar. Optimizasyondaki hemen hemen her sey Taylor acilimina dayanir.
+
+\subsubsection{1.\ Derece Taylor (Lineer Yaklasim)}
+
+\[
+f(x + p) \approx f(x) + \nabla f(x)^T p
+\]
+
+``$x$ noktasindayim, $p$ kadar adim atarsam $f$ ne olur?'' sorusuna yaklasik cevap verir.
+
+Geometrik anlam: Fonksiyonu \textbf{duz bir yuzey} (teget duzlem) ile yaklastiriyoruz.
+
+\subsubsection{2.\ Derece Taylor (Kuadratik Yaklasim)}
+
+\[
+f(x + p) \approx f(x) + \nabla f(x)^T p + \frac{1}{2} p^T \nabla^2 f(x) \, p
+\]
+
+Bu sefer \textbf{egrilik} bilgisini de ekliyoruz. Duz yuzey yerine \textbf{kase seklinde} (paraboloid) bir yaklasim yapiyoruz.
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item $\nabla f(x)$: Gradient --- egim bilgisi (1.\ turev)
+\item $\nabla^2 f(x)$: Hessian --- egrilik bilgisi (2.\ turev matrisi)
+\item $p$: Attigimiz adim
+\end{itemize}
+
+\subsubsection{Neden Onemli?}
+
+Optimizasyon algoritmalarinin cogu, fonksiyonu Taylor ile yaklastirip bu yaklasimi minimize eder:
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Steepest descent:} 1.\ derece Taylor kullanir
+\item \textbf{Newton yontemi:} 2.\ derece Taylor kullanir
+\end{itemize}
+
+\subsection{Gerekli Kosullar (Necessary Conditions)}
+
+``Bu noktanin minimum olmasi icin \textbf{mutlaka} saglanmasi gereken seyler.''
+
+\subsubsection{1.\ Derece Gerekli Kosul (FONC)}
+
+\begin{onemli}
+\textbf{Teorem 2.2:} $x^*$ lokal minimizer ve $f$ surekli turevlenebilir ise:
+\[
+\boxed{\nabla f(x^*) = 0}
+\]
+\end{onemli}
+
+\textbf{Sezgisel anlam:} Minimum noktasinda egim sifir olmali. Eger herhangi bir yonde egim varsa, o yone dogru giderek $f$'yi daha da kucultebilirdik --- yani orasi minimum olamaz.
+
+\begin{dikkat}
+Bu \textbf{gerekli} ama \textbf{yeterli} degil! $\nabla f = 0$ olan noktalar minimum, maksimum veya eyer noktasi olabilir.
+\end{dikkat}
+
+\subsubsection{2.\ Derece Gerekli Kosul (SONC)}
+
+\begin{onemli}
+\textbf{Teorem 2.3:} $x^*$ lokal minimizer, $f$ iki kez surekli turevlenebilir ve $\nabla f(x^*) = 0$ ise:
+\[
+\boxed{\nabla^2 f(x^*) \text{ pozitif semi-definit olmali}}
+\]
+\end{onemli}
+
+Pozitif semi-definit ne demek? Her $p$ yonu icin:
+
+\[
+p^T \nabla^2 f(x^*) \, p \geq 0
+\]
+
+\textbf{Sezgisel anlam:} Minimum noktasinda, \textbf{her yone} baktiginda egrilik yukariya dogru (veya duz) olmali. Eger herhangi bir yone baktiginda asagi egimli bir egrilik goruyorsan, orasi minimum degil.
+
+\textbf{Tek degisken analojisi:} $f''(x^*) \geq 0$ olmali (asagi dogru bukum).
+
+\subsection{Yeterli Kosullar (Sufficient Conditions)}
+
+``Bu kosullar saglaniyorsa, kesinlikle minimum.''
+
+\subsubsection{2.\ Derece Yeterli Kosul (SOSC)}
+
+\begin{onemli}
+\textbf{Teorem 2.4:} $\nabla f(x^*) = 0$ \textbf{ve} $\nabla^2 f(x^*)$ \textbf{pozitif definit} ise, $x^*$ kesinlikle \textbf{kati lokal minimizer}dir.
+\end{onemli}
+
+Pozitif definit ne demek? Her $p \neq 0$ icin:
+
+\[
+p^T \nabla^2 f(x^*) \, p > 0
+\]
+
+(Semi-definitten farki: esitlik olmaz, kesinlikle buyuktur)
+
+\textbf{Sezgisel anlam:} Her yone baktiginda egrilik \textbf{kesinlikle} yukariya dogru. Yani $x^*$'in her tarafinda $f$ degeri daha buyuk --- gercekten bir ``cukurun'' dibindeyiz.
+
+\subsubsection{Kosullar Tablosu}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Kontrol} & \textbf{Sonuc} \\
+\midrule
+$\nabla f(x^*) \neq 0$ & Duragan nokta degil, minimum degil \\
+$\nabla f(x^*) = 0$, $\nabla^2 f(x^*)$ pozitif definit & \textbf{Kesinlikle lokal minimum} $\checkmark$ \\
+$\nabla f(x^*) = 0$, $\nabla^2 f(x^*)$ pozitif semi-definit & Minimum \textbf{olabilir} (emin degiliz) \\
+$\nabla f(x^*) = 0$, $\nabla^2 f(x^*)$ negatif definit & \textbf{Lokal maksimum} \\
+$\nabla f(x^*) = 0$, $\nabla^2 f(x^*)$ indefinit & \textbf{Eyer noktasi (saddle point)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Dejenere Kritik Noktalar}
+
+Eger Hessian'in determinanti sifir ise (yani en az bir ozdegeri sifir), bu nokta \textbf{dejenere} (degenerate) noktadir.
+
+Bu durumda 2.\ turev testi \textbf{kesin cevap veremez}. Daha yuksek dereceden turevlere bakmak gerekebilir.
+
+\textbf{Ornek:} $f(x,y) = x^2 + ay^2 + by^4$
+
+Orijinde $\nabla f = 0$ ve Hessian:
+\[
+H = \begin{pmatrix} 2 & 0 \\ 0 & 6ay + 12by^2 \end{pmatrix}
+\]
+
+Orijinde: $H = \begin{pmatrix} 2 & 0 \\ 0 & 0 \end{pmatrix}$ --- bir ozdeger sifir $\rightarrow$ dejenere. Minimum olup olmadigi $a$ ve $b$ degerlerine baglidir.
+
+\subsection{Konvekslik ve Optimallik}
+
+Konveks fonksiyonlarda isler muhtesem basitlesiyor:
+
+\begin{teorem}[Teorem 2.5]
+$f$ konveks ise, her lokal minimizer ayni zamanda \textbf{global minimizer}dir.
+\end{teorem}
+
+\textbf{Ispat fikri:} Diyelim $x^*$ lokal ama global degil. O zaman baska bir $z$ noktasi var ki $f(z) < f(x^*)$. Konvekslik geregi, $x^*$ ile $z$ arasindaki her nokta da $f(x^*)$'dan kucuk olmali. Ama bu, $x^*$'in etrafinda daha iyi noktalar oldugu anlamina gelir --- lokal minimum olamazdi. Celiskiye dustuk.
+
+\begin{sonuc}
+$f$ konveks ve turevlenebilir ise, $\nabla f(x^*) = 0$ olan \textbf{her} $x^*$ \textbf{global minimumdur}.
+\end{sonuc}
+
+Bu, konveks optimizasyonu cok guclendiren bir sonuc. Sadece gradientin sifir oldugu noktayi bul --- o global minimumdur.
+
+\subsection{Duz Olmayan (Nonsmooth) Problemler}
+
+Bazi fonksiyonlar her yerde turevlenebilir olmayabilir:
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Kosede kirik:} $f(x) = |x|$ gibi ($x = 0$'da turev yok)
+\item \textbf{Parcali fonksiyonlar:} Farkli bolgelerde farkli formul
+\end{itemize}
+
+Bu durumda gradient hesaplayamayiz. Bunun yerine:
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Altgradient (subgradient):} Gradientin genellemesi
+\item \textbf{Genellestirilmis gradient:} Nonsmooth analiz araclari
+\end{itemize}
+
+Bu ders kapsaminda genellikle \textbf{duz (smooth)} fonksiyonlarla calisacagiz --- yani 2.\ turev surekli olan fonksiyonlar.
+
+\subsection{Ozet: Minimum Bulmak icin Yol Haritasi}
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+1. Nabla f(x*) = 0 coz -> duragan noktalari bul
+2. Her duragan noktada Hessian hesapla
+3. Hessian'in ozdegerlerine bak:
+   - Hepsi > 0 -> Pozitif definit -> LOKAL MINIMUM
+   - Hepsi < 0 -> Negatif definit -> Lokal maksimum
+   - Karisik isaret -> Indefinit -> Eyer noktasi
+   - Bazi sifir -> Dejenere -> Karar verilemez
+4. Konveks ise: lokal minimum = global minimum
+\end{Verbatim}
+
+
+% ============================================================
+% SECTION 3: ALGORITMALAR VE STRATEJILER
+% ============================================================
+\newpage
+\section{Algoritmalar ve Stratejiler}
+
+\subsection{Genel Resim}
+
+Gercek hayatta $\nabla f(x) = 0$ denklemini \textbf{kalem kagitla} cozmek genellikle imkansiz. Fonksiyonlar cok karmasik, degisken sayisi binlerce, hatta milyonlarca olabilir.
+
+Bu yuzden \textbf{iteratif algoritmalar} kullaniyoruz: Bir baslangic noktasindan baslayip, adim adim cozume yaklasiyoruz.
+
+\subsection{Iteratif Algoritmalarin Genel Yapisi}
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+1. Baslangic noktasi x_0 sec
+2. k = 0, 1, 2, ... icin tekrarla:
+   a. x_k noktasinda fonksiyon hakkinda bilgi topla
+   b. Bu bilgiye dayanarak x_{k+1} hesapla
+   c. Eger "yeterince iyi" ise dur
+\end{Verbatim}
+
+``Yeterince iyi'' genellikle soyle tanimlaniyor:
+
+\[
+\|\nabla f(x_k)\| < \varepsilon
+\]
+
+yani gradient neredeyse sifir (mesela $\varepsilon = 10^{-6}$).
+
+\subsection{Strateji 1: Line Search (Dogru Arama)}
+
+\subsubsection{Temel Fikir}
+
+Her iterasyonda iki sey belirliyoruz:
+\begin{enumerate}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Yon} $p_k$ --- ``nereye gideyim?''
+\item \textbf{Adim boyu} $\alpha_k$ --- ``ne kadar gideyim?''
+\end{enumerate}
+
+\[
+x_{k+1} = x_k + \alpha_k p_k
+\]
+
+Bu iki bilgiyi sirayla belirliyoruz: once yon, sonra adim boyu.
+
+\subsubsection{Adim Boyu Nasil Secilir?}
+
+$\alpha_k$'yi secmek aslinda \textbf{tek degiskenli} bir minimizasyon problemi:
+
+\[
+\min_{\alpha > 0} f(x_k + \alpha p_k)
+\]
+
+Bunu $\phi(\alpha) = f(x_k + \alpha p_k)$ olarak yazarsak, $\phi: \mathbb{R} \to \mathbb{R}$ fonksiyonunu minimize ediyoruz.
+
+\paragraph{Exact Line Search (Tam Dogru Arama).}
+
+$\phi(\alpha)$'nin \textbf{gercek minimumunu} bul:
+
+\[
+\phi'(\alpha) = 0 \quad \Rightarrow \quad \nabla f(x_k + \alpha p_k)^T p_k = 0
+\]
+
+Bu genelde pahali bir islem. Ama \textbf{kuadratik fonksiyonlar} icin kapali formulu var.
+
+\paragraph{Inexact Line Search (Yaklasik Dogru Arama).}
+
+Gercek minimumu bulmak yerine, ``yeterince iyi'' bir $\alpha$ sec. Pratikte daha cok bu kullanilir. Wolfe kosullari, Armijo kurali gibi yontemler var (ilerideki derslerde detaylandirilacak).
+
+\subsubsection{Descent Direction (Inis Yonu)}
+
+$p_k$ yonunun \textbf{inis yonu} (descent direction) olmasi sarttir:
+
+\[
+p_k^T \nabla f(x_k) < 0
+\]
+
+Bu ne demek? Gradient ile arama yonu arasindaki aci $90^\circ$'den buyuk. Yani gradient ``yukariya'' isaret ederken, biz ``asagiya'' dogru yuruyoruz.
+
+\textbf{Neden gerekli?} Taylor acilimindan:
+
+\[
+f(x_k + \alpha p_k) \approx f(x_k) + \alpha \nabla f(x_k)^T p_k
+\]
+
+Eger $p_k^T \nabla f(x_k) < 0$ ise, kucuk $\alpha > 0$ icin $f$ \textbf{azalir}. Yani bir miktar yuruyunce daha iyi bir noktaya geliyoruz.
+
+\textbf{Sezgisel:} Eger bir yon inis yonu degilse, o yone yurudugunde fonksiyon artar --- yanlis yone gitmis olursun!
+
+\subsection{Strateji 2: Trust Region (Guven Bolgesi)}
+
+\subsubsection{Temel Fikir}
+
+Fonksiyonu $x_k$ etrafinda bir \textbf{model} $m_k(p)$ ile yaklastir, sonra bu modeli bir \textbf{guven bolgesi} icinde minimize et:
+
+\[
+\min_p m_k(x_k + p) \quad \text{oyle ki } \|p\| \leq \Delta_k
+\]
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item $m_k$: Genellikle 2.\ derece Taylor (kuadratik model)
+\item $\Delta_k$: Guven bolgesi yaricapi
+\end{itemize}
+
+\subsubsection{Kuadratik Model}
+
+\[
+m_k(p) = f_k + \nabla f_k^T p + \frac{1}{2} p^T B_k p
+\]
+
+Burada:
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item $f_k = f(x_k)$: su anki fonksiyon degeri
+\item $\nabla f_k$: su anki gradient
+\item $B_k$: Hessian veya bir yaklasimi
+\end{itemize}
+
+\subsubsection{Nasil Calisir?}
+
+\begin{enumerate}[leftmargin=*, itemsep=0.3em]
+\item Model $m_k$'yi $\Delta_k$ topu icinde minimize et $\rightarrow$ aday noktayi bul
+\item Gercek $f$ degerini kontrol et: $f(x_k + p)$ gercekten azaldi mi?
+\item \textbf{Evet, cok azaldi} $\rightarrow$ $x_{k+1} = x_k + p$, $\Delta_k$'yi buyut (modele guveniyorum)
+\item \textbf{Evet, biraz azaldi} $\rightarrow$ $x_{k+1} = x_k + p$, $\Delta_k$'yi degistirme
+\item \textbf{Hayir, azalmadi} $\rightarrow$ $x_{k+1} = x_k$ (yerinde kal), $\Delta_k$'yi kucult (modele az guveniyorum)
+\end{enumerate}
+
+\subsubsection{Sezgisel Anlam}
+
+Trust region'u soyle dusun: Bir sisli dagda yuruyorsun. Etrafinda sadece belirli bir mesafeye kadar gorebiliyorsun (guven bolgesi). Gorunen alan icinde en dik yokusu bulup oraya yuruyorsun. Eger iyi sonuc veriyorsa, gorusunu genisletiyorsun (yaricapi buyut). Kotuye gidiyorsa, daha kisa mesafe icinde daha dikkatli bakiyorsun (yaricapi kucult).
+
+\subsection{Line Search vs Trust Region Karsilastirmasi}
+
+\subsubsection{Ornek ile Farki Anlama}
+
+$f(x_1, x_2)$ fonksiyonunu minimize etmek istiyorsun. $x_k = (3, 4)$ noktasindasin.
+
+\textbf{Line Search yaklasimiyla:}
+\begin{enumerate}[leftmargin=*, itemsep=0.2em]
+\item Yon sec: $p_k = (-1, -2)$ (mesela steepest descent)
+\item Bu yon uzerinde en iyi $\alpha$'yi ara: $\alpha^* = 0.5$
+\item $x_{k+1} = (3, 4) + 0.5(-1, -2) = (2.5, 3)$
+\end{enumerate}
+
+\textbf{Trust Region yaklasimiyla:}
+\begin{enumerate}[leftmargin=*, itemsep=0.2em]
+\item $\Delta_k = 1$ yaricapli bir daire tanimla ($\|p\| \leq 1$)
+\item Bu daire icinde kuadratik modeli minimize et $\rightarrow$ $p^* = (-0.4, -0.9)$
+\item $x_{k+1} = (3, 4) + (-0.4, -0.9) = (2.6, 3.1)$
+\end{enumerate}
+
+\subsubsection{Avantajlar/Dezavantajlar}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & \textbf{Line Search} & \textbf{Trust Region} \\
+\midrule
+\textbf{Avantaj} & Daha basit uygulanir & Daha saglam (robust) \\
+\textbf{Avantaj} & Az bellek gerektirir & Hessian indefinit olsa bile calisir \\
+\textbf{Dezavantaj} & $\alpha$ aramasi pahali olabilir & Alt-problem cozmek gerekir \\
+\textbf{Kullanim} & Buyuk olcekli problemler & Orta olcek, hassas cozum \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Yakinsaklik (Convergence) Turleri}
+
+Algoritma calisirken, cozume ne hizda yaklastigini bilmek onemli.
+
+\subsubsection{Lineer (Dogrusal) Yakinsaklik}
+
+\[
+\|x_{k+1} - x^*\| \leq c \|x_k - x^*\| \quad (0 < c < 1)
+\]
+
+Her adimda hatayi sabit bir oranla carpiyorsun. Ornegin $c = 0.5$ ise, her adimda hata yarilaniyor.
+
+\textbf{Ornek:} Steepest descent genellikle lineer yakinsaktir.
+
+\subsubsection{Kuadratik Yakinsaklik}
+
+\[
+\|x_{k+1} - x^*\| \leq M \|x_k - x^*\|^2
+\]
+
+Her adimda hatanin \textbf{karesi} alinir. Muhtesem hizli!
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Hata $= 0.1$ $\rightarrow$ sonraki hata $\approx 0.01$
+\item Hata $= 0.01$ $\rightarrow$ sonraki hata $\approx 0.0001$
+\end{itemize}
+
+\textbf{Ornek:} Newton yontemi (cozume yakin) kuadratik yakinsaktir.
+
+\subsubsection{Superlineer Yakinsaklik}
+
+Lineerden hizli ama kuadratikten yavas. Quasi-Newton yontemleri genellikle superlineer yakinsaktir.
+
+\subsubsection{Neden Onemli?}
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Lineer yakinsaklik: cozume ulasmak \textbf{cok fazla} iterasyon alabilir
+\item Kuadratik yakinsaklik: birkac iterasyonda muhtesem hassasiyete ulasirsin
+\item Ancak kuadratik yakinsaklik genellikle \textbf{cozume yakin} oldugunda gecerli
+\end{itemize}
+
+\subsection{Olcekleme (Scaling) Problemi}
+
+\subsubsection{Problem}
+
+Degiskenler farkli buyukluk mertebesinde olabilir:
+
+\[
+f(x_1, x_2) \quad \text{ile} \quad x_1 \approx 10^{-10}, \quad x_2 \approx 10^5
+\]
+
+Bu durumda steepest descent gibi algoritmalar cok kotu calisir cunku gradient bir degiskende cok buyuk, digerinde cok kucuk olabilir.
+
+\subsubsection{Cozum: Degisken Olcekleme}
+
+Yeni degisken $z$ tanimla:
+
+\[
+z_i = \frac{x_i}{d_i}
+\]
+
+oyle ki $z$'nin tum bilesenleri benzer buyuklukte olsun. Buna \textbf{kosegen olcekleme (diagonal scaling)} denir.
+
+\subsubsection{Ornek}
+
+Kimyasal reaksiyon sabitleri: $k_1 = 10^{-10}$, $k_2 = 1$, $k_3 = 10^5$
+
+$D = \text{diag}(10^{-10}, 1, 10^5)$ ile olcekleyince, yeni degiskenler $z_1, z_2, z_3 \approx 1$ mertebesinde olur.
+
+\subsubsection{Hangi Algoritmalar Olceklemeye Duyarli?}
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Steepest descent:} Cok duyarli --- kotu olcekleme = cok yavas yakinsaklik
+\item \textbf{Newton yontemi:} Olceklemeye \textbf{duyarsiz} --- Hessian bilgisini kullandigindan, olcegi otomatik duzeltir
+\item \textbf{Quasi-Newton:} Genellikle olceklemeye dayanikli
+\end{itemize}
+
+
+% ============================================================
+% SECTION 4: ARAMA YONLERI
+% ============================================================
+\newpage
+\section{Arama Yonleri (Search Directions)}
+
+\subsection{Genel Bakis}
+
+Line search yonteminde en kritik karar: \textbf{hangi yone yuruyecegiz?}
+
+\[
+x_{k+1} = x_k + \alpha_k p_k
+\]
+
+$p_k$'yi secmenin farkli yollari var. Her birinin guc ve zayfliklerini gorecegiz:
+
+\begin{center}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Yontem} & \textbf{Taylor Derecesi} & \textbf{Yakinsaklik} & \textbf{Maliyet} \\
+\midrule
+Steepest Descent & 1.\ derece & Lineer (yavas) & Dusuk \\
+Newton & 2.\ derece & Kuadratik (hizli) & Yuksek \\
+Conjugate Gradient & 1.\ derece + gecmis bilgisi & Superlineer & Orta \\
+Quasi-Newton (BFGS) & Yaklasik 2.\ derece & Superlineer & Orta \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Yontem 1: Steepest Descent (En Dik Inis)}
+
+\subsubsection{Fikir}
+
+Fonksiyonun \textbf{en hizli azaldigi} yone git. Bu yon nedir? \textbf{Negatif gradient!}
+
+\[
+\boxed{p_k = -\nabla f(x_k)}
+\]
+
+\subsubsection{Neden Negatif Gradient?}
+
+Taylor acilimindan:
+
+\[
+f(x_k + \alpha p) \approx f(x_k) + \alpha \nabla f(x_k)^T p
+\]
+
+$f$'nin en cok azalmasi icin $\nabla f(x_k)^T p$ \textbf{en negatif} olmali.
+
+$\|p\| = 1$ kisiti altinda (birim adim), ic carpimi en kucuk yapan $p$:
+
+\[
+p = -\frac{\nabla f(x_k)}{\|\nabla f(x_k)\|}
+\]
+
+Cunku $\nabla f^T p = \|\nabla f\| \, \|p\| \cos\theta$, bu $\theta = \pi$ (yani $p$, gradientin tam tersi) oldugunda minimum.
+
+\subsubsection{Inis Yonu Kontrolu}
+
+$p_k = -\nabla f(x_k)$ gercekten inis yonu mu?
+
+\[
+p_k^T \nabla f(x_k) = -\nabla f(x_k)^T \nabla f(x_k) = -\|\nabla f(x_k)\|^2 < 0 \quad \checkmark
+\]
+
+($\nabla f \neq 0$ oldugu surece)
+
+\subsubsection{Kuadratik Fonksiyonlarda Exact Line Search}
+
+$f(x) = \frac{1}{2}x^T Q x - b^T x$ seklinde kuadratik fonksiyonlarda ($Q$ simetrik pozitif definit), adim boyu icin kapali formul var:
+
+\[
+\boxed{\alpha_k = \frac{\nabla f(x_k)^T \nabla f(x_k)}{\nabla f(x_k)^T Q \, \nabla f(x_k)}}
+\]
+
+Bu formul, turevi alip sifira esitlemekten gelir.
+
+\subsubsection{Avantajlar ve Dezavantajlar}
+
+\textbf{Avantajlar:}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Basit:} Sadece gradient hesaplamak yeter
+\item \textbf{Global yakinsama:} Her zaman (yeterince kucuk adimla) ilerler
+\item \textbf{Az bellek:} $n$ boyutlu gradient saklamak yeterli
+\end{itemize}
+
+\textbf{Dezavantajlar:}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Yavas:} Lineer yakinsaklik --- ozellikle kotu kosullu problemlerde cok yavas
+\item \textbf{Zigzag hareketi:} Uzun dar vadilerde gradient surekli yon degistirir, ileri-geri gider
+\end{itemize}
+
+\subsubsection{Zigzag Problemi}
+
+Dusun: Dar bir vadi var (elips seklinde kontorler). Gradient her zaman konturlara dik, ama vadinin ekseni boyunca degil. Sonuc olarak:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+Iterasyon 1: sag-asagi git
+Iterasyon 2: sol-asagi git
+Iterasyon 3: sag-asagi git
+...
+\end{Verbatim}
+
+Her adim bir oncekine neredeyse dik! Cok yavas ilerliyor.
+
+\subsection{Yontem 2: Newton Yontemi}
+
+\subsubsection{Fikir}
+
+2.\ derece Taylor acilimini kullan --- sadece egimi degil, \textbf{egriligi} de hesaba kat:
+
+\[
+f(x_k + p) \approx f(x_k) + \nabla f(x_k)^T p + \frac{1}{2} p^T \nabla^2 f(x_k) \, p
+\]
+
+Bu kuadratik modeli $p$'ye gore minimize et:
+
+\[
+\nabla_p m(p) = \nabla f(x_k) + \nabla^2 f(x_k) \, p = 0
+\]
+
+\[
+\boxed{p_k^N = -[\nabla^2 f(x_k)]^{-1} \nabla f(x_k)}
+\]
+
+\subsubsection{Sezgisel Anlam}
+
+Steepest descent fonksiyona bir \textbf{duz yuzey} olarak bakip en dik yone gider. Newton yontemi fonksiyona bir \textbf{kase (paraboloid)} olarak bakip dogrudan kasenin dibine atlar.
+
+Eger fonksiyon gercekten kuadratik ise, Newton yontemi \textbf{tek adimda} cozumu bulur!
+
+\subsubsection{Newton Yonu Inis Yonu mu?}
+
+Eger $\nabla^2 f(x_k)$ \textbf{pozitif definit} ise:
+
+\[
+p_k^T \nabla f(x_k) = -\nabla f(x_k)^T [\nabla^2 f(x_k)]^{-1} \nabla f(x_k) < 0 \quad \checkmark
+\]
+
+Cunku pozitif definit matrisin tersi de pozitif definit $\rightarrow$ kuadratik form negatif.
+
+\begin{dikkat}
+Hessian pozitif definit degilse, Newton yonu inis yonu olmayabilir!
+\end{dikkat}
+
+\subsubsection{Avantajlar ve Dezavantajlar}
+
+\textbf{Avantajlar:}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Cok hizli:} Kuadratik yakinsaklik (cozume yakin)
+\item \textbf{Olceklemeye duyarsiz:} Hessian, degiskenlerin olcegini otomatik duzeltir
+\item \textbf{Kuadratik fonksiyonlarda 1 adim:} $f$ kuadratikse, ilk adimda cozumu bulur
+\end{itemize}
+
+\textbf{Dezavantajlar:}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item \textbf{Pahali:} Her adimda Hessian hesaplamak ve $n \times n$ lineer sistem cozmek gerekir
+\item \textbf{Hessian gerekli:} 2.\ turevlerin hesabi karmasik ve pahali olabilir
+\item \textbf{Her zaman calismaz:} Hessian indefinit veya tekil olabilir $\rightarrow$ yon yanlis olabilir
+\item \textbf{Lokal yakinsama:} Baslangic noktasi cozume yakin olmalidir
+\end{itemize}
+
+\subsubsection{Newton Adimini Fonksiyona Yerlestirelim}
+
+$p^N = -(\nabla^2 f)^{-1} \nabla f$'yi Taylor acilimina koyalim:
+
+\[
+f(x_k + p^N) \approx f(x_k) - \frac{1}{2} \nabla f(x_k)^T [\nabla^2 f(x_k)]^{-1} \nabla f(x_k)
+\]
+
+Bu her zaman $f(x_k)$'dan kucuk ($\nabla^2 f$ pozitif definit oldugu surece). Yani Newton adimi fonksiyonu kesinlikle azaltir.
+
+\subsection{Newton Yonteminin Varyasyonlari}
+
+Newton yonteminin dezavantajlarini gidermek icin cesitli varyasyonlar gelistirilmistir:
+
+\subsubsection{Modifiye Newton (Modified Newton)}
+
+Hessian indefinit veya tekil olabilir. Cozum: Hessian'a bir miktar birim matris ekle:
+
+\[
+B_k = \nabla^2 f(x_k) + \tau I
+\]
+
+$\tau$ yeterince buyuk secilirse $B_k$ pozitif definit olur.
+
+\subsubsection{Inexact Newton}
+
+Newton denklemini $\nabla^2 f \cdot p = -\nabla f$ tam olarak cozmek yerine, \textbf{yaklasik} coz. Buyuk problemlerde gerekli.
+
+\subsection{Yontem 3: Quasi-Newton Yontemleri}
+
+\subsubsection{Motivasyon}
+
+Newton yontemi hizli ama Hessian hesaplamak pahali. Ya Hessian'i \textbf{yaklasik} olarak olusturabilirsek?
+
+\subsubsection{Ana Fikir}
+
+Her iterasyonda Hessian'in bir \textbf{yaklasimini} $B_k$ guncelle. Gercek Hessian'i hesaplama --- gradientlerdeki degisimden tahmin et.
+
+\subsubsection{Secant Denklemi}
+
+$B_{k+1}$, su denklemi \textbf{saglamali}:
+
+\[
+B_{k+1} s_k = y_k
+\]
+
+Burada:
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item $s_k = x_{k+1} - x_k$ (atilan adim)
+\item $y_k = \nabla f_{k+1} - \nabla f_k$ (gradientteki degisim)
+\end{itemize}
+
+Bu denkleme \textbf{secant denklemi} denir. $n \times n$ bilinmeyen icin $n$ denklem oldugu icin sonsuz cozum var. Ek kosullar gerekiyor.
+
+\subsubsection{BFGS Yontemi}
+
+Broyden--Fletcher--Goldfarb--Shanno. En populer quasi-Newton yontemi.
+
+Guncelleme formulu:
+
+\[
+B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T s_k}
+\]
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Secant denklemini saglar $\checkmark$
+\item Simetriyi korur $\checkmark$
+\item $s_k^T y_k > 0$ ise pozitif definitligi korur $\checkmark$
+\end{itemize}
+
+\textbf{Pratik:} Genelde $B_k$ degil, $B_k^{-1}$ (ters Hessian yaklasimi $H_k$) dogrudan guncellenir. Boylece her adimda lineer sistem cozmek yerine sadece matris-vektor carpimi yapilir.
+
+Arama yonu:
+
+\[
+p_k = -H_k \nabla f_k \quad (H_k \approx [\nabla^2 f_k]^{-1})
+\]
+
+\subsubsection{SR1 (Symmetric Rank-1) Yontemi}
+
+Daha basit bir guncelleme:
+
+\[
+B_{k+1} = B_k + \frac{(y_k - B_k s_k)(y_k - B_k s_k)^T}{(y_k - B_k s_k)^T s_k}
+\]
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Rank-1 guncelleme (BFGS rank-2)
+\item Pozitif definitligi \textbf{garanti etmez} --- trust region ile kullanilir
+\item Bazi durumlarda BFGS'den daha iyi Hessian yaklasimi verir
+\end{itemize}
+
+\subsubsection{Quasi-Newton Ozet}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Ozellik} & \textbf{BFGS} & \textbf{SR1} \\
+\midrule
+Rank & 2 & 1 \\
+Pozitif definitlik & Korur & Korumaz \\
+Kullanim & Line search & Trust region \\
+Yakinsaklik & Superlineer & Superlineer \\
+Populerlik & Cok yaygin & Daha az yaygin \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Yontem 4: Conjugate Gradient (Eslenk Gradient)}
+
+\subsubsection{Motivasyon}
+
+Steepest descent zigzag yapiyor cunku her adim bir oncekine dik. Ya onceki arama yonunun bilgisini de kullansak?
+
+\subsubsection{Formul}
+
+\[
+\boxed{p_k = -\nabla f(x_k) + \beta_k p_{k-1}}
+\]
+
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Ilk adim steepest descent: $p_0 = -\nabla f(x_0)$
+\item Sonraki adimlar: gradient + onceki yonun bir miktari
+\end{itemize}
+
+$\beta_k$ skaleri $p_k$ ile $p_{k-1}$'in \textbf{eslenk (conjugate)} olmasini saglar.
+
+\subsubsection{Eslenk Ne Demek?}
+
+Iki vektor $p$ ve $q$, $Q$ matrisine gore \textbf{eslenk} ise:
+
+\[
+p^T Q \, q = 0
+\]
+
+Normal diklik $p^T q = 0$ iken, $Q$-eslenkligi $Q$'nun ``baktigi'' perspektiften diklik.
+
+\subsubsection{Neden Guclu?}
+
+Kuadratik fonksiyonda ($n$ degisken):
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Steepest descent: cozum icin potansiyel olarak \textbf{sonsuz} iterasyon
+\item Conjugate gradient: \textbf{en fazla $n$} iterasyonda tam cozum!
+\end{itemize}
+
+\subsubsection{Avantajlar ve Dezavantajlar}
+
+\textbf{Avantajlar:}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Steepest descent'ten cok daha hizli
+\item Newton gibi Hessian saklamak gerektirmez (bellek tasarrufu)
+\item Buyuk olcekli problemler icin ideal
+\end{itemize}
+
+\textbf{Dezavantajlar:}
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item Nonlineer fonksiyonlarda ``sifirlanma'' (restart) gerekebilir
+\item Newton kadar hizli degil
+\end{itemize}
+
+\subsection{Yontemlerin Buyuk Karsilastirmasi}
+
+Bir fonksiyonu minimum yapmak istiyorsun. Hangi yontemi sec?
+
+\subsubsection{Kucuk Problem ($n < 1000$)}
+$\rightarrow$ \textbf{Newton yontemi} veya \textbf{BFGS}: Kuadratik yakinsaklik / superlineer yakinsaklik. Hessian hesaplanabilir boyutta.
+
+\subsubsection{Orta Problem ($1000 < n < 100000$)}
+$\rightarrow$ \textbf{L-BFGS} (limited-memory BFGS): BFGS'nin bellek tasarruflu versiyonu. Son $m$ iterasyonun bilgisini saklar.
+
+\subsubsection{Buyuk Problem ($n > 100000$, mesela derin ogrenme)}
+$\rightarrow$ \textbf{Steepest descent} (SGD varyantlari): Basit, her adim ucuz. Adam, RMSprop gibi adaptif yontemler gradient'i olcekleyerek zigzag problemini hafifletir.
+
+\subsubsection{Ozet Akis Semasi}
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+Problem boyutu kucuk mu?
++-- Evet -> Hessian hesaplanabilir mi?
+|   +-- Evet -> NEWTON YONTEMI
+|   +-- Hayir -> BFGS
++-- Hayir -> Bellek yeterli mi?
+    +-- Evet -> L-BFGS
+    +-- Hayir -> CONJUGATE GRADIENT veya SGD
+\end{Verbatim}
+
+
+% ============================================================
+% SECTION 5: COZULMUS ORNEKLER
+% ============================================================
+\newpage
+\section{Cozulmus Ornekler}
+
+\subsection{Ornek 1: Steepest Descent + Exact Line Search (Kuadratik)}
+
+\textbf{Soru:} $f(x,y) = 4x^2 - 4xy + 2y^2$ fonksiyonunu steepest descent ile minimize et. Baslangic noktasi $x_0 = (2, 3)$. Ilk iterasyonu exact line search ile yap.
+
+\bigskip
+\textbf{Cozum:}
+
+\textbf{Adim 1: Gradient hesapla}
+
+\[
+\nabla f(x,y) = \begin{pmatrix} 8x - 4y \\ -4x + 4y \end{pmatrix}
+\]
+
+$x_0 = (2, 3)$ noktasinda:
+
+\[
+\nabla f(2,3) = \begin{pmatrix} 16 - 12 \\ -8 + 12 \end{pmatrix} = \begin{pmatrix} 4 \\ 4 \end{pmatrix}
+\]
+
+\textbf{Adim 2: Arama yonu}
+
+\[
+p_0 = -\nabla f(2,3) = \begin{pmatrix} -4 \\ -4 \end{pmatrix}
+\]
+
+\textbf{Adim 3: Exact line search --- $\alpha$'yi bul}
+
+Bu fonksiyon kuadratik: $f(x) = \frac{1}{2}x^T Q x + \ldots$ seklinde yazilabilir.
+
+$Q$ matrisini bulalim. $f = 4x^2 - 4xy + 2y^2$ ifadesini $\frac{1}{2}x^T Q x$ formuna getirelim:
+
+\[
+Q = \begin{pmatrix} 8 & -4 \\ -4 & 4 \end{pmatrix}
+\]
+
+Kuadratik fonksiyonlarda exact line search formulu:
+
+\[
+\alpha = \frac{\nabla f^T \nabla f}{\nabla f^T Q \, \nabla f}
+\]
+
+\[
+\nabla f^T \nabla f = 4^2 + 4^2 = 32
+\]
+
+\[
+Q \nabla f = \begin{pmatrix} 8 & -4 \\ -4 & 4 \end{pmatrix} \begin{pmatrix} 4 \\ 4 \end{pmatrix} = \begin{pmatrix} 16 \\ 0 \end{pmatrix}
+\]
+
+\[
+\nabla f^T Q \nabla f = (4)(16) + (4)(0) = 64
+\]
+
+\[
+\alpha_0 = \frac{32}{64} = \frac{1}{2}
+\]
+
+\textbf{Adim 4: Yeni noktayi hesapla}
+
+\[
+x_1 = x_0 + \alpha_0 p_0 = \begin{pmatrix} 2 \\ 3 \end{pmatrix} + \frac{1}{2} \begin{pmatrix} -4 \\ -4 \end{pmatrix} = \begin{pmatrix} 0 \\ 1 \end{pmatrix}
+\]
+
+\textbf{Kontrol:} $f(2,3) = 4(4) - 4(6) + 2(9) = 16 - 24 + 18 = 10$
+
+$f(0,1) = 0 - 0 + 2 = 2$
+
+Fonksiyon 10'dan 2'ye dustu $\checkmark$
+
+\subsection{Ornek 2: Steepest Descent --- Ikinci Fonksiyon}
+
+\textbf{Soru:} $f(x_1, x_2) = 2x_1^2 + 2x_1 x_2 + x_2^2$ fonksiyonunu steepest descent ile 1 iterasyon uygula. $x_0 = (0, 0)$.
+
+\bigskip
+\textbf{Cozum:}
+
+\[
+\nabla f = \begin{pmatrix} 4x_1 + 2x_2 \\ 2x_1 + 2x_2 \end{pmatrix}
+\]
+
+$x_0 = (0, 0)$:
+
+\[
+\nabla f(0,0) = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+\textbf{Gradient sifir!} $x_0 = (0, 0)$ zaten duragan nokta.
+
+Hessian:
+
+\[
+\nabla^2 f = \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix}
+\]
+
+Ozdegerler: $\lambda^2 - 6\lambda + 4 = 0 \rightarrow \lambda = \frac{6 \pm \sqrt{20}}{2} \rightarrow \lambda_1 \approx 5.24,\; \lambda_2 \approx 0.76$
+
+Her iki ozdeger pozitif $\rightarrow$ \textbf{pozitif definit} $\rightarrow$ $(0, 0)$ \textbf{lokal (ve global) minimumdur}. $f(0,0) = 0$.
+
+\subsection{Ornek 3: Kritik Nokta Siniflandirmasi}
+
+\textbf{Soru:} $f(x_1, x_2) = x_1^3 x_2 - x_1 x_2$ fonksiyonunun tum kritik noktalarini bul ve siniflandir.
+
+\bigskip
+\textbf{Cozum:}
+
+\textbf{Adim 1: $\nabla f = 0$}
+
+\[
+\nabla f = \begin{pmatrix} 3x_1^2 x_2 - x_2 \\ x_1^3 - x_1 \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+Ikinci denklem: $x_1^3 - x_1 = x_1(x_1^2 - 1) = 0$
+
+$\rightarrow$ $x_1 = 0$ veya $x_1 = 1$ veya $x_1 = -1$
+
+Birinci denklem: $x_2(3x_1^2 - 1) = 0$
+
+\textbf{$x_1 = 0$:} $x_2(0 - 1) = -x_2 = 0 \rightarrow x_2 = 0$. Kritik nokta: \textbf{(0, 0)}
+
+\textbf{$x_1 = 1$:} $x_2(3 - 1) = 2x_2 = 0 \rightarrow x_2 = 0$. Kritik nokta: \textbf{(1, 0)}
+
+\textbf{$x_1 = -1$:} $x_2(3 - 1) = 2x_2 = 0 \rightarrow x_2 = 0$. Kritik nokta: \textbf{(-1, 0)}
+
+\textbf{Adim 2: Hessian hesapla}
+
+\[
+\nabla^2 f = \begin{pmatrix} 6x_1 x_2 & 3x_1^2 - 1 \\ 3x_1^2 - 1 & 0 \end{pmatrix}
+\]
+
+\textbf{(0, 0) noktasinda:}
+
+\[
+H = \begin{pmatrix} 0 & -1 \\ -1 & 0 \end{pmatrix}
+\]
+
+Ozdegerler: $\lambda^2 - 1 = 0 \rightarrow \lambda = \pm 1$. Bir pozitif, bir negatif $\rightarrow$ \textbf{indefinit} $\rightarrow$ \textbf{eyer noktasi}
+
+\textbf{(1, 0) noktasinda:}
+
+\[
+H = \begin{pmatrix} 0 & 2 \\ 2 & 0 \end{pmatrix}
+\]
+
+Ozdegerler: $\lambda^2 - 4 = 0 \rightarrow \lambda = \pm 2$. Indefinit $\rightarrow$ \textbf{eyer noktasi}
+
+\textbf{(-1, 0) noktasinda:}
+
+\[
+H = \begin{pmatrix} 0 & 2 \\ 2 & 0 \end{pmatrix}
+\]
+
+Ayni Hessian $\rightarrow$ \textbf{eyer noktasi}
+
+\textbf{Sonuc:} Bu fonksiyonun lokal minimumu yok! Tum kritik noktalar eyer noktasi.
+
+\subsection{Ornek 4: Newton Yonu Hesaplama}
+
+\textbf{Soru:} $f(x_1, x_2) = x_1^2 + x_1 x_2 + x_2^2$ fonksiyonu icin $x_0 = (1, 1)$ noktasinda Newton yonunu bul.
+
+\bigskip
+\textbf{Cozum:}
+
+\[
+\nabla f = \begin{pmatrix} 2x_1 + x_2 \\ x_1 + 2x_2 \end{pmatrix}, \quad \nabla f(1,1) = \begin{pmatrix} 3 \\ 3 \end{pmatrix}
+\]
+
+\[
+\nabla^2 f = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}
+\]
+
+Newton yonu: $p^N = -(\nabla^2 f)^{-1} \nabla f$
+
+Tersi:
+
+\[
+(\nabla^2 f)^{-1} = \frac{1}{4-1} \begin{pmatrix} 2 & -1 \\ -1 & 2 \end{pmatrix} = \frac{1}{3} \begin{pmatrix} 2 & -1 \\ -1 & 2 \end{pmatrix}
+\]
+
+\[
+p^N = -\frac{1}{3} \begin{pmatrix} 2 & -1 \\ -1 & 2 \end{pmatrix} \begin{pmatrix} 3 \\ 3 \end{pmatrix} = -\frac{1}{3} \begin{pmatrix} 3 \\ 3 \end{pmatrix} = \begin{pmatrix} -1 \\ -1 \end{pmatrix}
+\]
+
+\[
+x_1 = x_0 + p^N = (1,1) + (-1,-1) = (0, 0)
+\]
+
+\textbf{Kontrol:} $\nabla f(0,0) = (0, 0)$. Gradient sifir --- \textbf{tek adimda cozumu bulduk!}
+
+Bu beklenen bir sonuc cunku $f$ kuadratik ve Newton yontemi kuadratik fonksiyonlari 1 adimda cozer.
+
+\subsection{Ornek 5: Steepest Descent ile Exact Line Search (Detayli)}
+
+\textbf{Soru:} $f(x_1, x_2) = 2x_1^2 + 2x_1 x_2 + x_2^2$, $x_0 = (1, 1)$. Steepest descent uygula.
+
+\bigskip
+\textbf{Cozum:}
+
+$Q$ matrisi: $f = \frac{1}{2}x^T Q x$ formuna getirmek icin: $2x_1^2 + 2x_1 x_2 + x_2^2 = \frac{1}{2}x^T \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix} x$
+
+\[
+Q = \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix}
+\]
+
+\textbf{Iterasyon 0:}
+
+$\nabla f(1,1) = Q \cdot x = \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix} \begin{pmatrix} 1 \\ 1 \end{pmatrix} = \begin{pmatrix} 6 \\ 4 \end{pmatrix}$
+
+$p_0 = -\nabla f = \begin{pmatrix} -6 \\ -4 \end{pmatrix}$
+
+\[
+\alpha_0 = \frac{\nabla f^T \nabla f}{\nabla f^T Q \nabla f} = \frac{36 + 16}{\begin{pmatrix} 6 & 4 \end{pmatrix} \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix} \begin{pmatrix} 6 \\ 4 \end{pmatrix}}
+\]
+
+\[
+Q \nabla f = \begin{pmatrix} 32 \\ 20 \end{pmatrix}, \quad \nabla f^T Q \nabla f = 6(32) + 4(20) = 192 + 80 = 272
+\]
+
+\[
+\alpha_0 = \frac{52}{272} = \frac{13}{68} \approx 0.191
+\]
+
+\[
+x_1 = \begin{pmatrix} 1 \\ 1 \end{pmatrix} + 0.191 \begin{pmatrix} -6 \\ -4 \end{pmatrix} \approx \begin{pmatrix} -0.147 \\ 0.235 \end{pmatrix}
+\]
+
+\textbf{Kontrol:} $f(1,1) = 2 + 2 + 1 = 5$, \quad $f(-0.147, 0.235) \approx 0.029$
+
+Buyuk dusus: $5 \rightarrow 0.029$ $\checkmark$
+
+\subsection{Ornek 6: Konveks Fonksiyonda Global Minimum}
+
+\textbf{Soru:} $f(x,y) = x^2 + 2xy + y^2$ fonksiyonunun konveks oldugunu goster. Kritik noktalarini bul.
+
+\bigskip
+\textbf{Cozum:}
+
+$f(x,y) = (x + y)^2 \geq 0$ (tam kare!)
+
+\textbf{Hessian:}
+
+\[
+\nabla f = \begin{pmatrix} 2x + 2y \\ 2x + 2y \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+$\rightarrow$ $x + y = 0 \rightarrow y = -x$. Yani \textbf{sonsuz kritik nokta} var: $\{(t, -t) : t \in \mathbb{R}\}$
+
+\[
+\nabla^2 f = \begin{pmatrix} 2 & 2 \\ 2 & 2 \end{pmatrix}
+\]
+
+Ozdegerler: $\lambda_1 = 4$, $\lambda_2 = 0$. Pozitif \textbf{semi-definit} (sifir ozdeger var).
+
+Fonksiyon konveks cunku Hessian pozitif semi-definit. Tum kritik noktalar global minimum: $f(t,-t) = 0$.
+
+\textbf{Not:} Sifir ozdeger ``duz yon'' demek --- $(1,-1)$ yonunde fonksiyon ne artar ne azalir.
+
+\subsection{Ornek 7: Eyer Noktasi Ornegi}
+
+\textbf{Soru:} $f(x_1, x_2) = x_1^2 - x_2^2$ fonksiyonunun $(0,0)$ noktasindaki turunu belirle.
+
+\bigskip
+\textbf{Cozum:}
+
+\[
+\nabla f = \begin{pmatrix} 2x_1 \\ -2x_2 \end{pmatrix}, \quad \nabla f(0,0) = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+Duragan nokta $\checkmark$
+
+\[
+\nabla^2 f = \begin{pmatrix} 2 & 0 \\ 0 & -2 \end{pmatrix}
+\]
+
+Ozdegerler: $\lambda_1 = 2 > 0$, $\lambda_2 = -2 < 0$ $\rightarrow$ \textbf{indefinit} $\rightarrow$ \textbf{eyer noktasi}
+
+\textbf{Sezgisel:} $x_1$ yonunde yukari bakiyor (minimum benzeri), $x_2$ yonunde asagi bakiyor (maksimum benzeri). Tam bir at eyeri!
+
+\subsection{Ornek 8: Rosenbrock Fonksiyonu --- Gradient ve Hessian}
+
+\textbf{Soru:} Rosenbrock fonksiyonu $f(x_1, x_2) = 100(x_2 - x_1^2)^2 + (1 - x_1)^2$ icin gradient ve Hessiani hesapla.
+
+\bigskip
+\textbf{Cozum:}
+
+\textbf{Gradient:}
+
+\[
+\frac{\partial f}{\partial x_1} = 100 \cdot 2(x_2 - x_1^2)(-2x_1) + 2(1-x_1)(-1) = -400x_1(x_2 - x_1^2) - 2(1 - x_1)
+\]
+
+\[
+\frac{\partial f}{\partial x_2} = 100 \cdot 2(x_2 - x_1^2) = 200(x_2 - x_1^2)
+\]
+
+\[
+\nabla f = \begin{pmatrix} -400x_1(x_2 - x_1^2) - 2(1-x_1) \\ 200(x_2 - x_1^2) \end{pmatrix}
+\]
+
+\textbf{Minimumu bulalim:} $\nabla f = 0$
+
+Ikinci denklem: $x_2 - x_1^2 = 0 \rightarrow x_2 = x_1^2$
+
+Birinci denklem: $0 - 2(1 - x_1) = 0 \rightarrow x_1 = 1$, $x_2 = 1$
+
+Minimum: \textbf{(1, 1)}, $f(1,1) = 0$.
+
+\textbf{Hessian:}
+
+\[
+\nabla^2 f = \begin{pmatrix} -400(x_2 - 3x_1^2) + 2 & -400x_1 \\ -400x_1 & 200 \end{pmatrix}
+\]
+
+$(1,1)$ noktasinda:
+
+\[
+\nabla^2 f(1,1) = \begin{pmatrix} -400(1-3) + 2 & -400 \\ -400 & 200 \end{pmatrix} = \begin{pmatrix} 802 & -400 \\ -400 & 200 \end{pmatrix}
+\]
+
+Ozdegerleri: $\det = 802 \cdot 200 - 160000 = 400 > 0$ ve $\text{iz} = 1002 > 0$ $\rightarrow$ \textbf{pozitif definit} $\checkmark$
+
+\subsection{Ornek 9: Descent Direction Kontrolu}
+
+\textbf{Soru:} $f(x_1, x_2) = x_1^2 + 4x_2^2$ fonksiyonu icin $x = (2, 1)$ noktasinda asagidaki yonlerin inis yonu olup olmadigini belirle:
+\begin{enumerate}[label=\alph*), leftmargin=*]
+\item $p = (-1, 0)$
+\item $p = (0, 1)$
+\item $p = (-1, -1)$
+\end{enumerate}
+
+\bigskip
+\textbf{Cozum:}
+
+\[
+\nabla f(2,1) = \begin{pmatrix} 2(2) \\ 8(1) \end{pmatrix} = \begin{pmatrix} 4 \\ 8 \end{pmatrix}
+\]
+
+Inis yonu kosulu: $p^T \nabla f < 0$
+
+\textbf{a) $p = (-1, 0)$:}
+$p^T \nabla f = (-1)(4) + (0)(8) = -4 < 0$ $\rightarrow$ \textbf{Inis yonu} $\checkmark$
+
+\textbf{b) $p = (0, 1)$:}
+$p^T \nabla f = (0)(4) + (1)(8) = 8 > 0$ $\rightarrow$ \textbf{Inis yonu degil} $\times$  (cikis yonu)
+
+\textbf{c) $p = (-1, -1)$:}
+$p^T \nabla f = (-1)(4) + (-1)(8) = -12 < 0$ $\rightarrow$ \textbf{Inis yonu} $\checkmark$
+
+\textbf{Yorum:} b yonu gradient ile ayni tarafa isaret ediyor (yukari), yani o yone yurursek $f$ artar. a ve c yonleri gradientin karsi tarafinda, yani $f$ azalir.
+
+\subsection{Ornek 10: Kuadratik Fonksiyonda Newton vs Steepest Descent}
+
+\textbf{Soru:} $f(x_1, x_2) = 3x_1^2 + 2x_2^2 - 2x_1 x_2 - 4x_1$ fonksiyonunu $(0, 0)$ noktasindan baslayarak hem Newton hem steepest descent ile 1'er iterasyon uygula. Karsilastir.
+
+\bigskip
+\textbf{Cozum:}
+
+\[
+\nabla f = \begin{pmatrix} 6x_1 - 2x_2 - 4 \\ 4x_2 - 2x_1 \end{pmatrix}, \quad \nabla f(0,0) = \begin{pmatrix} -4 \\ 0 \end{pmatrix}
+\]
+
+\[
+\nabla^2 f = \begin{pmatrix} 6 & -2 \\ -2 & 4 \end{pmatrix}
+\]
+
+\subsubsection{Newton Yontemi:}
+
+\[
+p^N = -(\nabla^2 f)^{-1} \nabla f
+\]
+
+\[
+(\nabla^2 f)^{-1} = \frac{1}{24-4} \begin{pmatrix} 4 & 2 \\ 2 & 6 \end{pmatrix} = \frac{1}{20} \begin{pmatrix} 4 & 2 \\ 2 & 6 \end{pmatrix}
+\]
+
+\[
+p^N = -\frac{1}{20} \begin{pmatrix} 4 & 2 \\ 2 & 6 \end{pmatrix} \begin{pmatrix} -4 \\ 0 \end{pmatrix} = -\frac{1}{20} \begin{pmatrix} -16 \\ -8 \end{pmatrix} = \begin{pmatrix} 0.8 \\ 0.4 \end{pmatrix}
+\]
+
+\[
+x_1^{\text{Newton}} = (0,0) + (0.8, 0.4) = (0.8, 0.4)
+\]
+
+$f(0.8, 0.4) = 3(0.64) + 2(0.16) - 2(0.32) - 4(0.8) = 1.92 + 0.32 - 0.64 - 3.2 = \mathbf{-1.6}$
+
+$\nabla f(0.8, 0.4) = (6(0.8) - 2(0.4) - 4,\; 4(0.4) - 2(0.8)) = (0, 0)$ $\rightarrow$ \textbf{Tam cozum!}
+
+\subsubsection{Steepest Descent:}
+
+$p_0 = -\nabla f(0,0) = (4, 0)$
+
+$Q = \begin{pmatrix} 6 & -2 \\ -2 & 4 \end{pmatrix}$ $\rightarrow$ $Q p_0 = \begin{pmatrix} 24 \\ -8 \end{pmatrix}$
+
+\[
+\alpha_0 = \frac{p_0^T p_0}{p_0^T Q p_0} = \frac{16}{(4)(24) + (0)(-8)} = \frac{16}{96} = \frac{1}{6}
+\]
+
+\[
+x_1^{\text{SD}} = (0,0) + \frac{1}{6}(4, 0) = (0.667, 0)
+\]
+
+$f(0.667, 0) = 3(0.444) - 4(0.667) = 1.333 - 2.667 = \mathbf{-1.333}$
+
+$\nabla f(0.667, 0) = (6(0.667) - 4,\; -2(0.667)) = (0, -1.333) \neq 0$ $\rightarrow$ Henuz bitmedi.
+
+\subsubsection{Karsilastirma}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+ & \textbf{Newton} & \textbf{Steepest Descent} \\
+\midrule
+$x_1$ & $(0.8,\; 0.4)$ & $(0.667,\; 0)$ \\
+$f(x_1)$ & $-1.6$ & $-1.333$ \\
+$\nabla f(x_1)$ & $(0, 0)$ $\checkmark$ & $(0, -1.33)$ \\
+Bitti mi? & \textbf{Evet} & Hayir \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Newton 1 adimda bitirdi, steepest descent devam etmeli.
+
+\subsection{Ornek 11: Dejenere Kritik Nokta}
+
+\textbf{Soru:} $f(x,y) = x^2 + ay^2 + by^4$ fonksiyonu. Orijinin kritik noktasini siniflandir ($a$ ve $b$ genel).
+
+\bigskip
+\textbf{Cozum:}
+
+\[
+\nabla f = \begin{pmatrix} 2x \\ 2ay + 4by^3 \end{pmatrix}, \quad \nabla f(0,0) = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+Duragan nokta $\checkmark$
+
+\[
+\nabla^2 f = \begin{pmatrix} 2 & 0 \\ 0 & 2a + 12by^2 \end{pmatrix}
+\]
+
+Orijinde:
+
+\[
+\nabla^2 f(0,0) = \begin{pmatrix} 2 & 0 \\ 0 & 2a \end{pmatrix}
+\]
+
+\begin{itemize}[leftmargin=*, itemsep=0.3em]
+\item \textbf{$a > 0$:} Ozdegerler 2 ve $2a$, ikisi de pozitif $\rightarrow$ \textbf{lokal minimum}
+\item \textbf{$a < 0$:} Ozdegerler 2 ve $2a$ (negatif) $\rightarrow$ \textbf{eyer noktasi}
+\item \textbf{$a = 0$:} Hessian $= \begin{pmatrix} 2 & 0 \\ 0 & 0 \end{pmatrix}$. Ozdegerler 2 ve 0 $\rightarrow$ \textbf{dejenere}. 4.\ turev bilgisi lazim:
+  \begin{itemize}[leftmargin=*]
+  \item $b > 0$ ise: $y^4$ terimi sonunda yukari ceker $\rightarrow$ \textbf{minimum}
+  \item $b < 0$ ise: $y^4$ terimi asagiya ceker $\rightarrow$ eyer noktasi
+  \item $b = 0$ ise: $f = x^2$ $\rightarrow$ $y$ ekseninde sabit, minimum olarak kabul edilebilir
+  \end{itemize}
+\end{itemize}
+
+\subsection{Ornek 12: Cok Degiskenli Kritik Nokta Bulma}
+
+\textbf{Soru:} $f(x_1, x_2) = x_1^2 x_2 - x_1 x_2$ fonksiyonunun tum extremum (maksimum/minimum) noktalarini bul.
+
+\bigskip
+\textbf{Cozum:}
+
+\textbf{Adim 1: $\nabla f = 0$}
+
+\[
+\frac{\partial f}{\partial x_1} = 2x_1 x_2 - x_2 = x_2(2x_1 - 1) = 0
+\]
+
+\[
+\frac{\partial f}{\partial x_2} = x_1^2 - x_1 = x_1(x_1 - 1) = 0
+\]
+
+Ikinci denklem: $x_1 = 0$ veya $x_1 = 1$
+
+Birinci denklem: $x_2 = 0$ veya $x_1 = 1/2$
+
+Kombinasyonlar:
+\begin{itemize}[leftmargin=*, itemsep=0.2em]
+\item $x_1 = 0$, $x_2 = 0$ $\rightarrow$ \textbf{(0, 0)}
+\item $x_1 = 0$, $x_1 = 1/2$ $\rightarrow$ celiskili ($x_1$ ayni anda 0 ve 1/2 olamaz)
+\item $x_1 = 1$, $x_2 = 0$ $\rightarrow$ \textbf{(1, 0)}
+\item $x_1 = 1$, $x_1 = 1/2$ $\rightarrow$ celiskili
+\end{itemize}
+
+Kritik noktalar: \textbf{(0, 0)} ve \textbf{(1, 0)}
+
+\textbf{Adim 2: Hessian}
+
+\[
+\nabla^2 f = \begin{pmatrix} 2x_2 & 2x_1 - 1 \\ 2x_1 - 1 & 0 \end{pmatrix}
+\]
+
+\textbf{(0, 0):}
+
+\[
+H = \begin{pmatrix} 0 & -1 \\ -1 & 0 \end{pmatrix}
+\]
+
+$\det(H) = 0 - 1 = -1 < 0$ $\rightarrow$ \textbf{eyer noktasi}
+
+\textbf{(1, 0):}
+
+\[
+H = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}
+\]
+
+$\det(H) = 0 - 1 = -1 < 0$ $\rightarrow$ \textbf{eyer noktasi}
+
+\textbf{Sonuc:} Bu fonksiyonun lokal minimumu veya maksimumu yok. Tum kritik noktalar eyer noktasi.
+
+\subsection{Ornek 13: Exact Line Search Formulu --- Kuadratik Dogrulama}
+
+\textbf{Soru:} $f(x) = \frac{1}{2}x^T Q x - b^T x$ ile $Q = \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix}$, $b = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$. $x_0 = (2, -2)$ noktasindan steepest descent uygula. $\alpha$ icin kapali formulu dogrula.
+
+\bigskip
+\textbf{Cozum:}
+
+$\nabla f(x) = Qx - b = Qx$
+
+\[
+\nabla f(2,-2) = \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix} \begin{pmatrix} 2 \\ -2 \end{pmatrix} = \begin{pmatrix} 4 \\ 0 \end{pmatrix}
+\]
+
+$p_0 = -(4, 0)$
+
+\textbf{Formul ile:}
+
+\[
+\alpha = \frac{\nabla f^T \nabla f}{\nabla f^T Q \nabla f} = \frac{16}{\begin{pmatrix} 4 & 0 \end{pmatrix} \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix} \begin{pmatrix} 4 \\ 0 \end{pmatrix}} = \frac{16}{\begin{pmatrix} 4 & 0 \end{pmatrix} \begin{pmatrix} 16 \\ 8 \end{pmatrix}} = \frac{16}{64} = \frac{1}{4}
+\]
+
+\[
+x_1 = (2,-2) + \frac{1}{4}(-4, 0) = (1, -2)
+\]
+
+$f(2,-2) = \frac{1}{2}\begin{pmatrix} 2 & -2 \end{pmatrix} \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix} \begin{pmatrix} 2 \\ -2 \end{pmatrix} = \frac{1}{2}\begin{pmatrix} 2 & -2 \end{pmatrix} \begin{pmatrix} 4 \\ 0 \end{pmatrix} = \frac{1}{2}(8) = 4$
+
+$f(1,-2) = \frac{1}{2}\begin{pmatrix} 1 & -2 \end{pmatrix} \begin{pmatrix} 4 & 2 \\ 2 & 2 \end{pmatrix} \begin{pmatrix} 1 \\ -2 \end{pmatrix} = \frac{1}{2}\begin{pmatrix} 1 & -2 \end{pmatrix} \begin{pmatrix} 0 \\ -2 \end{pmatrix} = \frac{1}{2}(4) = 2$
+
+$f: 4 \rightarrow 2$. Azalis var $\checkmark$
+
+\end{document}
